@@ -72,6 +72,15 @@ Open your browser and navigate to: **`http://127.0.0.1:5000`**
 ### Option 2: Open Directly in Any Web Browser (Zero-Install / Offline)
 Simply double-click **`index.html`** in File Explorer to run directly in Google Chrome, Edge, or Firefox! The application automatically falls back to client-side localStorage and simulation mode if the backend server is not running.
 
+### Option 3: Deploy to Vercel
+This repository includes a Vercel configuration and a Python serverless entry point.
+
+1. Import the repository into Vercel.
+2. Set the project root to the folder containing `vercel.json`.
+3. Deploy with the default build settings.
+
+The Flask API is available under `/api/*`, while the frontend is served as static files. Vercel's filesystem is ephemeral, so uploaded files and SQLite changes are stored in `/tmp` and can be reset when a serverless instance is recreated. For persistent production data, replace SQLite and local uploads with a hosted database and object storage.
+
 ---
 
 ## 🛠️ Technology Stack

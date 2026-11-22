@@ -1,13 +1,18 @@
 # app.py - SmartPrint Backend Server
 import os
 import time
+import tempfile
 from werkzeug.utils import secure_filename
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 import database
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'uploads')
+UPLOAD_FOLDER = (
+    os.path.join(tempfile.gettempdir(), 'smartprint', 'uploads')
+    if os.getenv('VERCEL') == '1'
+    else os.path.join(BASE_DIR, 'uploads')
+)
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
 app = Flask(__name__, static_folder=BASE_DIR, static_url_path='')

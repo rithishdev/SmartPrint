@@ -3,9 +3,24 @@ import sqlite3
 import random
 import os
 import json
+import shutil
+import tempfile
 from datetime import datetime
 
-DB_PATH = os.path.join(os.path.dirname(__file__), 'smartprint.db')
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SOURCE_DB_PATH = os.path.join(BASE_DIR, 'smartprint.db')
+
+# Vercel's deployed filesystem is read-only except for /tmp. Copy the bundled
+# seed database there once per warm function instance so the API can still
+# perform its demo writes.
+if os.getenv('VERCEL') == '1':
+    RUNTIME_DIR = os.path.join(tempfile.gettempdir(), 'smartprint')
+    os.makedirs(RUNTIME_DIR, exist_ok=True)
+    DB_PATH = os.path.join(RUNTIME_DIR, 'smartprint.db')
+    if not os.path.exists(DB_PATH) and os.path.exists(SOURCE_DB_PATH):
+        shutil.copyfile(SOURCE_DB_PATH, DB_PATH)
+else:
+    DB_PATH = os.getenv('SMARTPRINT_DB_PATH', SOURCE_DB_PATH)
 
 def get_db():
     conn = sqlite3.connect(DB_PATH)
