@@ -2,9 +2,7 @@
   "version": 2,
   "functions": {
     "api/index.py": {
-      "includeFiles": [
-        "smartprint.db"
-      ]
+      "includeFiles": "smartprint.db"
     }
   },
   "rewrites": [
