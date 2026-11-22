@@ -1,0 +1,2524 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartPrint | Campus Printing & Queue Management System</title>
+  <meta name="description" content="Web-based campus printing and queue management system for Sri Krishna College of Engineering and Technology (SKCET) Dept of AI&DS.">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            },
+            college: '#003366'
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col selection:bg-blue-100 selection:text-blue-700">
+
+  <!-- TOP INSTITUTION BANNER -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-col md:flex-row items-center justify-between py-2.5 gap-2">
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-900 to-indigo-800 flex items-center justify-center text-white shadow-md shadow-blue-900/20 flex-shrink-0">
+            <i class="fa-solid fa-print text-2xl"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">SKCET • AI&DS</span>
+              <span class="text-xs text-slate-500 font-medium">Batch 9 • 26ECC01 Lab</span>
+            </div>
+            <h1 class="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+              <span>SMARTPRINT</span>
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span> Campus Live
+              </span>
+            </h1>
+            <p class="text-xs text-slate-500 hidden sm:block">Campus Printing & Queue Management System</p>
+          </div>
+        </div>
+
+        <!-- Navigation Tabs / View Switcher -->
+        <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+          <button id="nav-student" onclick="switchView('student')" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all bg-white text-blue-700 shadow-sm">
+            <i class="fa-solid fa-user-graduate"></i>
+            <span>Student Portal</span>
+          </button>
+          <button id="nav-shop" onclick="switchView('shop')" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-all">
+            <i class="fa-solid fa-store"></i>
+            <span>Shop Operator</span>
+            <span id="shop-badge" class="ml-1 px-1.5 py-0.2 bg-blue-100 text-blue-700 rounded-full text-[10px] font-bold">3</span>
+          </button>
+          <button id="nav-showcase" onclick="switchView('showcase')" class="nav-tab px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-all">
+            <i class="fa-solid fa-graduation-cap"></i>
+            <span>Project Review Hub</span>
+            <span class="text-[10px] bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded-full">16 Slides</span>
+          </button>
+        </div>
+
+        <!-- Student Profile Dropdown -->
+        <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg text-xs">
+            <div class="w-6 h-6 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center text-[11px]" id="user-avatar">
+              Y
+            </div>
+            <div class="text-left">
+              <p class="font-bold text-slate-800 leading-none" id="user-display-name">Yasvanth V</p>
+              <p class="text-[10px] text-slate-500 font-mono" id="user-display-roll">26AD470</p>
+            </div>
+            <button onclick="toggleUserModal()" title="Switch batch member profile" class="text-slate-400 hover:text-blue-600 ml-1">
+              <i class="fa-solid fa-repeat"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- QUICK SYSTEM TICKER -->
+  <div class="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 text-white text-xs py-1.5 px-4">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-3">
+        <span class="flex items-center gap-1.5 text-emerald-400 font-medium">
+          <i class="fa-solid fa-circle-check text-[10px]"></i> Xerox Counter 1 Open
+        </span>
+        <span class="text-slate-400">|</span>
+        <span class="text-slate-300">
+          <i class="fa-solid fa-clock text-[10px] mr-1"></i> Current est. wait time: <strong id="ticker-wait-time" class="text-amber-300">~6 mins</strong>
+        </span>
+        <span class="text-slate-400 hidden sm:inline">|</span>
+        <span class="text-slate-300 hidden sm:inline">
+          <i class="fa-solid fa-leaf text-emerald-400 text-[10px] mr-1"></i> SDG 12: <span id="ticker-sheets" class="text-emerald-300 font-semibold">24</span> sheets saved via duplex
+        </span>
+      </div>
+      <div class="text-slate-300 flex items-center gap-2">
+        <span class="hidden md:inline">Sri Krishna College of Engg & Tech, Coimbatore</span>
+        <span class="bg-blue-800/80 px-2 py-0.5 rounded text-[11px] font-mono border border-blue-700/60">Lab Review 1</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: STUDENT PORTAL -->
+    <!-- ========================================== -->
+    <section id="view-student" class="space-y-6">
+      
+      <!-- Welcome Hero Banner -->
+      <div class="bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-800 rounded-2xl p-6 text-white shadow-lg relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-10 opacity-10 text-9xl pointer-events-none">
+          <i class="fa-solid fa-print"></i>
+        </div>
+        <div class="relative z-10 max-w-3xl">
+          <span class="px-2.5 py-1 rounded-full text-xs font-semibold bg-white/20 text-white border border-white/20 backdrop-blur-sm">
+            🚀 Skip Physical Xerox Queues
+          </span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight mt-2">
+            Submit Print Jobs In Advance. Collect Without Waiting.
+          </h2>
+          <p class="text-blue-100 text-sm mt-1">
+            Upload your assignments, lab records, seminar slides, and project documentation. Get an instant digital token with real-time queue delay tracking.
+          </p>
+        </div>
+      </div>
+
+      <!-- Grid: Order Form (Left) & Active Token / Live Queue (Right) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT: PRINT SUBMISSION FORM (7 Cols) -->
+        <div class="lg:col-span-7 space-y-6">
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+              <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+                <span class="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center text-sm font-bold">1</span>
+                <span>Configure & Submit Print Job</span>
+              </h3>
+              <span class="text-xs text-slate-500">Auto-Price Calculation</span>
+            </div>
+
+            <form id="print-order-form" onsubmit="handleOrderSubmit(event)" class="mt-5 space-y-5">
+              
+              <!-- Document Upload Zone -->
+              <div>
+                <label class="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">
+                  Upload Document <span class="text-red-500">*</span>
+                </label>
+                <div id="drop-zone" class="border-2 border-dashed border-slate-300 rounded-xl p-6 text-center hover:border-blue-500 hover:bg-blue-50/30 transition-all cursor-pointer relative bg-slate-50/50">
+                  <input type="file" id="file-input" class="hidden" accept=".pdf,.docx,.doc,.ppt,.pptx,.jpg,.jpeg,.png" onchange="handleFileSelect(event)">
+                  <div class="space-y-2" id="upload-prompt">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl">
+                      <i class="fa-solid fa-cloud-arrow-up"></i>
+                    </div>
+                    <p class="text-sm font-semibold text-slate-800">
+                      Drag & drop your file here, or <span class="text-blue-600 underline">browse</span>
+                    </p>
+                    <p class="text-xs text-slate-500">Supported: PDF, DOCX, PPTX, JPG, PNG (Max 50MB)</p>
+                  </div>
+                  <!-- Selected File Display -->
+                  <div id="file-details" class="hidden flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg p-3 text-left">
+                    <div class="flex items-center gap-3 overflow-hidden">
+                      <div class="w-10 h-10 rounded bg-blue-600 text-white flex items-center justify-center font-bold text-sm flex-shrink-0" id="file-icon">
+                        PDF
+                      </div>
+                      <div class="truncate">
+                        <p class="text-xs font-bold text-slate-900 truncate" id="file-name-display">Report.pdf</p>
+                        <p class="text-[11px] text-slate-500" id="file-meta-display">1.4 MB • 12 pages detected</p>
+                      </div>
+                    </div>
+                    <button type="button" onclick="clearSelectedFile(event)" class="text-slate-400 hover:text-red-500 p-1.5 transition-colors">
+                      <i class="fa-solid fa-xmark"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Quick Sample Document Presets (Convenient for Review Demos) -->
+                <div class="mt-2.5 flex items-center gap-1.5 flex-wrap">
+                  <span class="text-[11px] text-slate-400 font-medium">Quick Demo Files:</span>
+                  <button type="button" onclick="useSampleDoc('EIDT_Lab_Report_Review1.pdf', 16, 2.4)" class="text-[11px] bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 px-2 py-0.5 rounded border border-slate-200 transition-colors">
+                    📄 EIDT_Review1.pdf (16p)
+                  </button>
+                  <button type="button" onclick="useSampleDoc('MachineLearning_Assignment2.pdf', 6, 0.8)" class="text-[11px] bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 px-2 py-0.5 rounded border border-slate-200 transition-colors">
+                    📄 ML_Assignment.pdf (6p)
+                  </button>
+                  <button type="button" onclick="useSampleDoc('Seminar_Presentation_Deck.pptx', 24, 4.2)" class="text-[11px] bg-slate-100 hover:bg-blue-50 text-slate-700 hover:text-blue-700 px-2 py-0.5 rounded border border-slate-200 transition-colors">
+                    📊 Seminar_Deck.pptx (24p)
+                  </button>
+                </div>
+              </div>
+
+              <!-- Print Configuration Grid -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+                
+                <!-- Color Mode -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Color Preference</label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="border rounded-xl p-2.5 flex items-center gap-2 cursor-pointer transition-all border-blue-500 bg-blue-50/60 ring-2 ring-blue-500/20" id="opt-color-bw">
+                      <input type="radio" name="color_mode" value="bw" checked onchange="updatePriceCalculation()" class="hidden">
+                      <div class="w-4 h-4 rounded-full bg-slate-800 flex items-center justify-center text-[10px] text-white">
+                        <i class="fa-solid fa-circle text-[6px]"></i>
+                      </div>
+                      <div>
+                        <div class="text-xs font-bold text-slate-800">Black & White</div>
+                        <div class="text-[10px] text-slate-500">₹1.50 / page</div>
+                      </div>
+                    </label>
+
+                    <label class="border rounded-xl p-2.5 flex items-center gap-2 cursor-pointer transition-all border-slate-200 hover:border-slate-300" id="opt-color-full">
+                      <input type="radio" name="color_mode" value="color" onchange="updatePriceCalculation()" class="hidden">
+                      <div class="w-4 h-4 rounded-full bg-gradient-to-r from-pink-500 via-amber-400 to-blue-500 flex items-center justify-center"></div>
+                      <div>
+                        <div class="text-xs font-bold text-slate-800">Full Color</div>
+                        <div class="text-[10px] text-slate-500">₹5.00 / page</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Sides (Duplex / Simplex) -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5 flex items-center justify-between">
+                    <span>Print Sides</span>
+                    <span class="text-[10px] text-emerald-600 font-semibold">🌱 SDG 12 Eco-Saver</span>
+                  </label>
+                  <div class="grid grid-cols-2 gap-2">
+                    <label class="border rounded-xl p-2.5 flex items-center gap-2 cursor-pointer transition-all border-blue-500 bg-blue-50/60 ring-2 ring-blue-500/20" id="opt-side-double">
+                      <input type="radio" name="sides" value="double" checked onchange="updatePriceCalculation()" class="hidden">
+                      <i class="fa-solid fa-copy text-blue-600 text-sm"></i>
+                      <div>
+                        <div class="text-xs font-bold text-slate-800">Double-Sided</div>
+                        <div class="text-[10px] text-emerald-600 font-medium">15% Off (Save Paper)</div>
+                      </div>
+                    </label>
+
+                    <label class="border rounded-xl p-2.5 flex items-center gap-2 cursor-pointer transition-all border-slate-200 hover:border-slate-300" id="opt-side-single">
+                      <input type="radio" name="sides" value="single" onchange="updatePriceCalculation()" class="hidden">
+                      <i class="fa-solid fa-file text-slate-500 text-sm"></i>
+                      <div>
+                        <div class="text-xs font-bold text-slate-800">Single-Sided</div>
+                        <div class="text-[10px] text-slate-500">Standard sheet</div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Page Range & Copies -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <!-- Page Range Selection -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Page Selection</label>
+                  <div class="flex items-center gap-2">
+                    <select id="page-range-type" onchange="togglePageRangeInput()" class="text-xs rounded-lg border border-slate-200 bg-white p-2.5 font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                      <option value="all">All Pages</option>
+                      <option value="custom">Custom Range</option>
+                    </select>
+                    <input type="text" id="custom-range-input" placeholder="e.g. 1-10, 14" oninput="updatePriceCalculation()" class="hidden flex-1 text-xs rounded-lg border border-slate-200 p-2.5 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                  </div>
+                  <p class="text-[10px] text-slate-500 mt-1" id="pages-count-caption">Printing all 16 detected pages</p>
+                </div>
+
+                <!-- Number of Copies -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Number of Copies</label>
+                  <div class="flex items-center border border-slate-200 rounded-lg max-w-[160px] bg-slate-50">
+                    <button type="button" onclick="adjustCopies(-1)" class="w-10 h-9 flex items-center justify-center text-slate-600 hover:text-blue-600 font-bold text-base hover:bg-slate-100 rounded-l-lg transition-colors">
+                      -
+                    </button>
+                    <input type="number" id="copies-input" min="1" max="50" value="1" onchange="updatePriceCalculation()" class="w-12 h-9 text-center bg-transparent font-bold text-xs text-slate-800 focus:outline-none">
+                    <button type="button" onclick="adjustCopies(1)" class="w-10 h-9 flex items-center justify-center text-slate-600 hover:text-blue-600 font-bold text-base hover:bg-slate-100 rounded-r-lg transition-colors">
+                      +
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Paper Quality & Binding Options -->
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                
+                <!-- Paper Quality -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Paper Quality</label>
+                  <select id="paper-type-select" onchange="updatePriceCalculation()" class="w-full text-xs rounded-lg border border-slate-200 bg-white p-2.5 font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="standard">Standard 75 GSM (Daily Print)</option>
+                    <option value="premium">Bond Paper 100 GSM (+₹1/sheet)</option>
+                  </select>
+                </div>
+
+                <!-- Binding Option -->
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1.5">Finishing / Binding</label>
+                  <select id="binding-select" onchange="updatePriceCalculation()" class="w-full text-xs rounded-lg border border-slate-200 bg-white p-2.5 font-medium text-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                    <option value="none">No Binding</option>
+                    <option value="staple">Corner Staple (+₹1.00)</option>
+                    <option value="spiral">Spiral Coil Binding (+₹25.00)</option>
+                    <option value="soft">Soft Thermal Binding (+₹40.00)</option>
+                  </select>
+                </div>
+
+              </div>
+
+              <!-- Special Notes -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Special Notes for Xerox Operator (Optional)</label>
+                <input type="text" id="special-notes" placeholder="e.g. Please use blue back cover, or print 2 slides per page" class="w-full text-xs rounded-lg border border-slate-200 p-2.5 text-slate-700 focus:ring-2 focus:ring-blue-500 focus:outline-none">
+              </div>
+
+              <!-- Dynamic Real-Time Price Summary Box -->
+              <div class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
+                <div class="flex items-center justify-between text-xs text-slate-600">
+                  <span id="price-breakdown-pages">16 Pages × 1 Copy (B&W @ ₹1.50)</span>
+                  <span class="font-mono font-medium" id="price-subtotal">₹24.00</span>
+                </div>
+                <div class="flex items-center justify-between text-xs text-emerald-600" id="price-discount-row">
+                  <span>🌱 Double-sided Paper Saving Discount (15%)</span>
+                  <span class="font-mono font-medium" id="price-discount">-₹3.60</span>
+                </div>
+                <div class="flex items-center justify-between text-xs text-slate-600" id="price-binding-row">
+                  <span id="price-binding-label">Corner Staple</span>
+                  <span class="font-mono font-medium" id="price-binding-cost">+₹1.00</span>
+                </div>
+                <div class="pt-2 border-t border-slate-200 flex items-center justify-between">
+                  <div>
+                    <span class="text-xs text-slate-500 uppercase font-bold tracking-wider">Total Price</span>
+                    <p class="text-[11px] text-slate-400">Includes all taxes & Xerox handling</p>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-2xl font-black text-blue-700 font-mono" id="price-grand-total">₹21.40</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Submit Action Button -->
+              <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
+                <i class="fa-solid fa-credit-card"></i>
+                <span>Proceed to Pay & Generate Token</span>
+              </button>
+
+            </form>
+          </div>
+        </div>
+
+        <!-- RIGHT: LIVE TOKEN CARD & QUEUE TRACKER (5 Cols) -->
+        <div class="lg:col-span-5 space-y-6">
+          
+          <!-- Live Active Token Pass -->
+          <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 relative overflow-hidden" id="active-token-card">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 flex items-center gap-2">
+                <i class="fa-solid fa-ticket text-blue-600"></i>
+                <span>Active Print Pass</span>
+              </h3>
+              <span id="active-status-badge" class="px-2.5 py-0.5 rounded-full text-xs font-bold badge-ready">
+                Ready for Pickup
+              </span>
+            </div>
+
+            <!-- Ticket Core -->
+            <div class="my-4 p-5 rounded-xl bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 text-white relative shadow-inner">
+              <div class="flex items-start justify-between">
+                <div>
+                  <span class="text-[10px] text-indigo-300 uppercase tracking-widest font-mono">CAMPUS TOKEN ID</span>
+                  <div class="text-2xl sm:text-3xl font-black font-mono tracking-wider text-amber-300" id="token-id-display">
+                    #SKC-2026-A101
+                  </div>
+                </div>
+                <div class="bg-white/10 p-2 rounded-lg text-center backdrop-blur-sm">
+                  <div class="text-[10px] text-slate-300">Queue Pos</div>
+                  <div class="text-lg font-bold text-white" id="token-queue-pos">At Counter</div>
+                </div>
+              </div>
+
+              <!-- SVG/Canvas QR Code preview -->
+              <div class="mt-4 flex items-center justify-between pt-3 border-t border-white/10">
+                <div class="space-y-1">
+                  <p class="text-xs font-bold text-white truncate max-w-[180px]" id="token-doc-name">EIDT_Review1_SmartPrint.pdf</p>
+                  <p class="text-[11px] text-indigo-200 font-mono" id="token-specs-summary">16p • B&W • Duplex • Spiral</p>
+                  <p class="text-[11px] text-emerald-400 font-semibold" id="token-paid-amount">₹45.00 • Paid via UPI</p>
+                </div>
+                <div class="bg-white p-1.5 rounded-lg shadow" id="token-qr-container">
+                  <canvas id="token-qr-canvas" width="68" height="68"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Animated Queue Status Stepper (5 stages) -->
+            <div class="space-y-4 pt-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-bold text-slate-800">Print Progress:</span>
+                <span class="text-blue-600 font-semibold font-mono" id="stepper-time-est">Est: Ready Now</span>
+              </div>
+
+              <!-- Steps Bar -->
+              <div class="relative flex items-center justify-between">
+                <div class="absolute left-0 top-1/2 -translate-y-1/2 w-full h-1 bg-slate-200 z-0"></div>
+                <div id="stepper-fill-line" class="absolute left-0 top-1/2 -translate-y-1/2 h-1 bg-blue-600 transition-all duration-500 z-0" style="width: 75%;"></div>
+
+                <div class="relative z-10 flex flex-col items-center">
+                  <div id="step-node-1" class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                  </div>
+                  <span class="text-[10px] font-semibold text-slate-700 mt-1">Received</span>
+                </div>
+
+                <div class="relative z-10 flex flex-col items-center">
+                  <div id="step-node-2" class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                  </div>
+                  <span class="text-[10px] font-semibold text-slate-700 mt-1">Queued</span>
+                </div>
+
+                <div class="relative z-10 flex flex-col items-center">
+                  <div id="step-node-3" class="w-7 h-7 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-bold shadow">
+                    <i class="fa-solid fa-check text-[10px]"></i>
+                  </div>
+                  <span class="text-[10px] font-semibold text-slate-700 mt-1">Printing</span>
+                </div>
+
+                <div class="relative z-10 flex flex-col items-center">
+                  <div id="step-node-4" class="w-7 h-7 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shadow ring-4 ring-emerald-100">
+                    <i class="fa-solid fa-bell text-[10px]"></i>
+                  </div>
+                  <span class="text-[10px] font-bold text-emerald-700 mt-1">Ready!</span>
+                </div>
+
+                <div class="relative z-10 flex flex-col items-center">
+                  <div id="step-node-5" class="w-7 h-7 rounded-full bg-slate-300 text-slate-600 flex items-center justify-center text-xs font-bold">
+                    <i class="fa-solid fa-hand-holding text-[10px]"></i>
+                  </div>
+                  <span class="text-[10px] text-slate-400 mt-1">Collected</span>
+                </div>
+              </div>
+
+              <!-- Ready Callout Banner -->
+              <div id="ready-notification-box" class="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 flex items-center gap-3 text-emerald-900">
+                <div class="w-9 h-9 rounded-full bg-emerald-500 text-white flex items-center justify-center text-base flex-shrink-0">
+                  <i class="fa-solid fa-bell animate-bounce"></i>
+                </div>
+                <div class="flex-1">
+                  <p class="text-xs font-bold">Your document is ready at Counter 1!</p>
+                  <p class="text-[11px] text-emerald-700">Show this screen or quote token <strong class="font-mono">#SKC-2026-A101</strong> to collect.</p>
+                </div>
+                <button onclick="playChimeSound()" class="p-1.5 text-emerald-600 hover:text-emerald-800" title="Replay notification chime">
+                  <i class="fa-solid fa-volume-high"></i>
+                </button>
+              </div>
+
+              <!-- Quick Token Tracker Search -->
+              <div class="pt-3 border-t border-slate-100">
+                <label class="block text-[11px] font-semibold text-slate-500 mb-1">Track Another Token:</label>
+                <div class="flex gap-2">
+                  <input type="text" id="track-token-input" placeholder="e.g. SKC-2026-A102" class="flex-1 text-xs border border-slate-200 rounded-lg px-2.5 py-1.5 font-mono uppercase focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <button onclick="trackTokenFromInput()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold rounded-lg transition-colors">
+                    Track
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Whitt Waiting-Time Scientific Principle Card -->
+          <div class="bg-gradient-to-br from-indigo-50 to-blue-50 border border-indigo-100 rounded-2xl p-4 text-xs text-indigo-950">
+            <div class="flex items-center gap-2 font-bold text-indigo-900 mb-1">
+              <i class="fa-solid fa-brain text-indigo-600"></i>
+              <span>Queue Delay Estimation Model</span>
+            </div>
+            <p class="text-[11px] text-indigo-800 leading-relaxed">
+              Based on <em>Whitt (1999) & Ibrahim & Whitt (2011)</em> queueing delay predictors:
+              <span class="block font-mono bg-white/80 p-1.5 rounded mt-1 text-[10px] border border-indigo-200/60">
+                T_wait ≈ (∑ Pages Ahead × 1.5s) / (60 × 2 Printers) + Buffer
+              </span>
+            </p>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- BOTTOM: STUDENT ORDER HISTORY TAB -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Your Campus Print History</h3>
+            <p class="text-xs text-slate-500">Orders placed by <span class="font-bold text-slate-700" id="history-roll-label">26AD470</span></p>
+          </div>
+          <button onclick="refreshOrders()" class="text-xs text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-arrows-rotate"></i> Refresh
+          </button>
+        </div>
+
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[11px]">
+                <th class="py-2.5 px-3">Token</th>
+                <th class="py-2.5 px-3">Document</th>
+                <th class="py-2.5 px-3">Specs</th>
+                <th class="py-2.5 px-3">Total</th>
+                <th class="py-2.5 px-3">Status</th>
+                <th class="py-2.5 px-3 text-right">Action</th>
+              </tr>
+            </thead>
+            <tbody id="student-history-tbody" class="divide-y divide-slate-100">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: SHOP OPERATOR DASHBOARD -->
+    <!-- ========================================== -->
+    <section id="view-shop" class="hidden space-y-6">
+      
+      <!-- Top Analytics Bar -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+            <span>Active Queue</span>
+            <i class="fa-solid fa-list-check text-blue-600"></i>
+          </div>
+          <div class="text-2xl font-black text-slate-900" id="stat-active-queue">3</div>
+          <p class="text-[10px] text-blue-600 font-semibold mt-0.5">Orders in printing queue</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+            <span>Ready for Pickup</span>
+            <i class="fa-solid fa-bell text-emerald-600"></i>
+          </div>
+          <div class="text-2xl font-black text-emerald-600" id="stat-ready-count">1</div>
+          <p class="text-[10px] text-emerald-700 font-semibold mt-0.5">Awaiting collection</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+            <span>Today's Revenue</span>
+            <i class="fa-solid fa-indian-rupee-sign text-amber-600"></i>
+          </div>
+          <div class="text-2xl font-black text-slate-900 font-mono" id="stat-revenue">₹259.50</div>
+          <p class="text-[10px] text-slate-500 mt-0.5">100% digital reconciliations</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
+          <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+            <span>SDG 12 Paper Saved</span>
+            <i class="fa-solid fa-leaf text-emerald-500"></i>
+          </div>
+          <div class="text-2xl font-black text-emerald-600 font-mono" id="stat-sheets-saved">24</div>
+          <p class="text-[10px] text-emerald-700 mt-0.5">Physical sheets conserved</p>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm col-span-2 sm:col-span-1">
+          <div class="flex items-center justify-between text-slate-500 text-xs mb-1">
+            <span>Avg Wait Time</span>
+            <i class="fa-solid fa-stopwatch text-indigo-600"></i>
+          </div>
+          <div class="text-2xl font-black text-slate-900" id="stat-avg-wait">6.5m</div>
+          <p class="text-[10px] text-indigo-600 mt-0.5">Whitt delay predictor</p>
+        </div>
+
+      </div>
+
+      <!-- Quick Counter Token Verifier -->
+      <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-2xl p-5 text-white shadow-md">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="space-y-1 text-center md:text-left">
+            <span class="text-xs font-bold text-amber-400 uppercase tracking-widest flex items-center gap-1.5 justify-center md:justify-start">
+              <i class="fa-solid fa-barcode"></i> Counter Express Handover
+            </span>
+            <h3 class="text-lg font-extrabold text-white">Quick Student Token Verification</h3>
+            <p class="text-xs text-slate-300">Type or scan student's token code to verify payment and mark order as collected.</p>
+          </div>
+          <div class="flex items-center gap-2 w-full md:w-auto">
+            <input type="text" id="counter-token-input" placeholder="e.g. SKC-2026-A101" class="px-4 py-2.5 rounded-xl bg-slate-800 border border-slate-700 text-white font-mono uppercase text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 w-full sm:w-64">
+            <button onclick="verifyCounterToken()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition-colors flex items-center gap-2 flex-shrink-0 shadow">
+              <i class="fa-solid fa-check"></i> Verify & Handover
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Queue Board & Controls -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        
+        <!-- Filter Bar & Search -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <button onclick="filterShopQueue('All')" class="shop-filter-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-blue-600 text-white shadow-sm" data-filter="All">
+              All Orders (<span id="count-all">5</span>)
+            </button>
+            <button onclick="filterShopQueue('Received')" class="shop-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200" data-filter="Received">
+              Received (<span id="count-received">2</span>)
+            </button>
+            <button onclick="filterShopQueue('Processing')" class="shop-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200" data-filter="Processing">
+              In Print (<span id="count-processing">1</span>)
+            </button>
+            <button onclick="filterShopQueue('Ready')" class="shop-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200" data-filter="Ready">
+              Ready (<span id="count-ready">1</span>)
+            </button>
+            <button onclick="filterShopQueue('Collected')" class="shop-filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200" data-filter="Collected">
+              Collected (<span id="count-collected">1</span>)
+            </button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="relative">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+              <input type="text" id="shop-search-input" oninput="searchShopQueue()" placeholder="Search token, roll, name..." class="pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 w-52 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+            <button onclick="refreshOrders()" class="p-2 border border-slate-200 rounded-lg hover:bg-slate-50 text-slate-600" title="Reload queue">
+              <i class="fa-solid fa-arrows-rotate text-xs"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Orders Table / List -->
+        <div class="overflow-x-auto mt-4">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 text-slate-500 uppercase tracking-wider text-[11px] bg-slate-50">
+                <th class="py-3 px-3">Token & Time</th>
+                <th class="py-3 px-3">Student Details</th>
+                <th class="py-3 px-3">Document</th>
+                <th class="py-3 px-3">Print Specifications</th>
+                <th class="py-3 px-3">Payment</th>
+                <th class="py-3 px-3">Status</th>
+                <th class="py-3 px-3 text-right">Workflow Actions</th>
+              </tr>
+            </thead>
+            <tbody id="shop-queue-tbody" class="divide-y divide-slate-100">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- Campus Hardware Monitor Strip -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-print"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-slate-800">HP LaserJet Enterprise 700</h4>
+              <p class="text-[11px] text-slate-500">Monochrome Heavy-Duty • Duplex Feeder</p>
+            </div>
+          </div>
+          <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full border border-emerald-200">
+            Online 🟢
+          </span>
+        </div>
+
+        <div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-700 flex items-center justify-center text-lg">
+              <i class="fa-solid fa-copy"></i>
+            </div>
+            <div>
+              <h4 class="text-xs font-bold text-slate-800">Canon imageRUNNER ADVANCE C3530</h4>
+              <p class="text-[11px] text-slate-500">Multi-function Color Xerox & Finishing</p>
+            </div>
+          </div>
+          <span class="text-xs font-bold text-emerald-700 bg-emerald-100 px-2.5 py-1 rounded-full border border-emerald-200">
+            Online 🟢
+          </span>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: LAB REVIEW & PROJECT PRESENTATION -->
+    <!-- ========================================== -->
+    <section id="view-showcase" class="hidden space-y-6">
+      
+      <!-- Showcase Mode Switcher Bar -->
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm">
+        <div class="flex items-center gap-2.5">
+          <span class="text-xs font-bold text-slate-700">Display Format:</span>
+          <div class="flex bg-slate-100 p-1 rounded-xl border border-slate-200/80 text-xs">
+            <button id="btn-mode-dashboard" onclick="toggleShowcaseMode('dashboard')" class="px-3.5 py-1.5 rounded-lg font-bold bg-white text-blue-700 shadow-xs flex items-center gap-1.5 transition-all">
+              <i class="fa-solid fa-table-cells-large"></i>
+              <span>Comprehensive Hub</span>
+            </button>
+            <button id="btn-mode-slides" onclick="toggleShowcaseMode('slides')" class="px-3.5 py-1.5 rounded-lg font-medium text-slate-600 hover:text-slate-900 flex items-center gap-1.5 transition-all">
+              <i class="fa-solid fa-person-chalkboard text-indigo-600"></i>
+              <span>16-Slide Deck Mode</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="switchView('student')" class="px-3.5 py-1.5 bg-blue-50 hover:bg-blue-100 text-blue-700 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5 border border-blue-200 shadow-xs">
+            <i class="fa-solid fa-user-graduate"></i>
+            <span>Student Portal Demo</span>
+          </button>
+          <button onclick="switchView('shop')" class="px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-bold rounded-xl text-xs transition-colors flex items-center gap-1.5 border border-emerald-200 shadow-xs">
+            <i class="fa-solid fa-store"></i>
+            <span>Shop Operator Demo</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Container 1: All-In-One Dashboard Hub -->
+      <div id="showcase-dashboard" class="space-y-8">
+        
+        <!-- Academic Presentation Header Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 relative overflow-hidden">
+        <div class="border-b border-slate-200 pb-6 text-center space-y-2">
+          <p class="text-xs font-extrabold uppercase tracking-widest text-blue-900">
+            SRI KRISHNA COLLEGE OF ENGINEERING AND TECHNOLOGY
+          </p>
+          <p class="text-[11px] text-slate-500">
+            An Autonomous Institution | Anna University Affiliated | NAAC A++ Accredited | Kuniamuthur, Coimbatore – 641008
+          </p>
+          <p class="text-sm font-bold text-indigo-700 pt-1">
+            Department of Artificial Intelligence & Data Science
+          </p>
+          <div class="inline-block bg-blue-50 text-blue-800 px-3 py-1 rounded-full text-xs font-semibold border border-blue-200 mt-2">
+            26ECC01 - Engineering Innovation and Design Thinking Lab • First Review
+          </div>
+          <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight pt-2">
+            SMARTPRINT: CAMPUS PRINTING AND QUEUE MANAGEMENT SYSTEM
+          </h2>
+          <p class="text-xs text-slate-500 font-mono">Date: 03/11/2026 (FN) | Batch No.: 9</p>
+        </div>
+
+        <!-- Team Members Roster Grid -->
+        <div class="mt-6">
+          <p class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3 text-center">Batch Members</p>
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+              <div class="w-8 h-8 rounded-full bg-blue-600 text-white font-bold flex items-center justify-center mx-auto text-xs mb-1">
+                Y
+              </div>
+              <h5 class="text-xs font-bold text-slate-800">YASVANTH V</h5>
+              <p class="text-[11px] font-mono text-blue-700 font-semibold">26AD470</p>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+              <div class="w-8 h-8 rounded-full bg-indigo-600 text-white font-bold flex items-center justify-center mx-auto text-xs mb-1">
+                M
+              </div>
+              <h5 class="text-xs font-bold text-slate-800">MITHUN G</h5>
+              <p class="text-[11px] font-mono text-indigo-700 font-semibold">26AD480</p>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+              <div class="w-8 h-8 rounded-full bg-emerald-600 text-white font-bold flex items-center justify-center mx-auto text-xs mb-1">
+                Y
+              </div>
+              <h5 class="text-xs font-bold text-slate-800">YESHWANTH K</h5>
+              <p class="text-[11px] font-mono text-emerald-700 font-semibold">26AD471</p>
+            </div>
+
+            <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center">
+              <div class="w-8 h-8 rounded-full bg-purple-600 text-white font-bold flex items-center justify-center mx-auto text-xs mb-1">
+                F
+              </div>
+              <h5 class="text-xs font-bold text-slate-800">FATHRUL HAQ F</h5>
+              <p class="text-[11px] font-mono text-purple-700 font-semibold">26AD478</p>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 2 & 3: Problem Statements & Objectives -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Problem Statement Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 slide-card">
+          <div class="flex items-center gap-2 text-rose-600 pb-2 border-b border-slate-100">
+            <i class="fa-solid fa-triangle-exclamation text-lg"></i>
+            <h3 class="text-base font-bold text-slate-900">Problem Statement(s)</h3>
+          </div>
+          <ul class="text-xs text-slate-600 space-y-2.5">
+            <li class="flex items-start gap-2">
+              <span class="text-rose-500 font-bold">•</span>
+              <span><strong>Problem:</strong> Students face long physical queues at the campus printing and Xerox shop, especially during short breaks and assignment deadlines.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-rose-500 font-bold">•</span>
+              <span><strong>Background:</strong> Printing requests are received in person. Staff must collect files, confirm page and copy counts, calculate charges, collect payment and communicate status.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-rose-500 font-bold">•</span>
+              <span><strong>Impact on Students:</strong> Break time lost waiting; students risk being late to class or failing to collect prints before sessions.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-rose-500 font-bold">•</span>
+              <span><strong>Impact on Staff:</strong> Multiple walk-in requests, manual file handling, and pricing checks create congestion and order mix-ups.</span>
+            </li>
+            <li class="flex items-start gap-2 bg-blue-50 p-2.5 rounded-lg border border-blue-200 text-blue-900 font-medium">
+              <span class="text-blue-600 font-bold">•</span>
+              <span><strong>Need:</strong> A single campus platform to submit print jobs in advance, obtain a queue token, and collect completed work without waiting beside the counter.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Objectives Card -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4 slide-card">
+          <div class="flex items-center gap-2 text-blue-600 pb-2 border-b border-slate-100">
+            <i class="fa-solid fa-bullseye text-lg"></i>
+            <h3 class="text-base font-bold text-slate-900">Objectives & Success Criteria</h3>
+          </div>
+          <ul class="text-xs text-slate-600 space-y-2.5">
+            <li class="flex items-start gap-2">
+              <span class="text-blue-500 font-bold">•</span>
+              <span><strong>Primary Objective:</strong> Develop a web-based campus printing & Xerox ordering system digitizing order submission and queue handling.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-blue-500 font-bold">•</span>
+              <span><strong>Student Functions:</strong> Upload supported documents; select page range, copies, color/B&W, and single/double-sided options; view calculated price; submit order.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-blue-500 font-bold">•</span>
+              <span><strong>Shop Functions:</strong> View incoming orders, access submitted files, update order status, verify payment, and manage print queue.</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <span class="text-blue-500 font-bold">•</span>
+              <span><strong>Queue & Communication:</strong> Generate a unique token for each accepted order and notify students when ready for collection.</span>
+            </li>
+            <li class="flex items-start gap-2 bg-emerald-50 p-2.5 rounded-lg border border-emerald-200 text-emerald-900 font-medium">
+              <span class="text-emerald-600 font-bold">•</span>
+              <span><strong>Success Measures:</strong> Correct price calculation; 100% unique tokens; accurate order-status updates; reduction in observed waiting time.</span>
+            </li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- SLIDE 4: SUSTAINABLE DEVELOPMENT GOALS (SDGs) -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-globe text-emerald-600"></i>
+            <span>Sustainable Development Goals (SDG) Mapping</span>
+          </h3>
+          <span class="text-xs text-slate-500 font-medium">United Nations SDG Alignment</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+          
+          <!-- SDG 9 -->
+          <div class="border border-orange-200 bg-orange-50/50 rounded-xl p-4 space-y-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-9 h-9 rounded-lg bg-orange-600 text-white font-black flex items-center justify-center text-sm shadow">9</span>
+              <div>
+                <h4 class="text-xs font-bold text-orange-950">Industry, Innovation & Infrastructure</h4>
+                <p class="text-[10px] text-orange-700">Digitalization of Campus Services</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed pt-1">
+              Digitalizes an existing physical campus service through a web-based ordering and queue automation platform, upgrading campus infrastructure.
+            </p>
+          </div>
+
+          <!-- SDG 12 -->
+          <div class="border border-amber-200 bg-amber-50/50 rounded-xl p-4 space-y-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-9 h-9 rounded-lg bg-amber-600 text-white font-black flex items-center justify-center text-sm shadow">12</span>
+              <div>
+                <h4 class="text-xs font-bold text-amber-950">Responsible Consumption & Production</h4>
+                <p class="text-[10px] text-amber-700">Paper Waste Reduction</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed pt-1">
+              Custom page-range selection, duplex discounts, and digital print previews avoid accidental duplicate pages, reprints, and unnecessary paper waste.
+            </p>
+          </div>
+
+          <!-- SDG 8 -->
+          <div class="border border-red-200 bg-red-50/50 rounded-xl p-4 space-y-2">
+            <div class="flex items-center gap-2.5">
+              <span class="w-9 h-9 rounded-lg bg-red-700 text-white font-black flex items-center justify-center text-sm shadow">8</span>
+              <div>
+                <h4 class="text-xs font-bold text-red-950">Decent Work & Economic Growth</h4>
+                <p class="text-[10px] text-red-700">Workflow Organization</p>
+              </div>
+            </div>
+            <p class="text-xs text-slate-700 leading-relaxed pt-1">
+              Organizes shop operations, minimizes repetitive manual file calculations and counter chaos, enabling efficient service delivery.
+            </p>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SLIDE 8: EXISTING TECHNOLOGY -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-server text-amber-600"></i>
+              <span>Existing Technology & Comparative Analysis (Slide 8)</span>
+            </h3>
+            <p class="text-xs text-slate-500">Analysis of current manual practices versus existing digital tools</p>
+          </div>
+          <span class="text-xs bg-amber-50 text-amber-800 font-mono px-2 py-0.5 rounded border border-amber-200">Slide 8</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+          <!-- Current Methods -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <h4 class="text-xs font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px]">1</span>
+              <span>Current Counter Methods</span>
+            </h4>
+            <ul class="text-xs text-slate-600 space-y-1.5 pl-2">
+              <li class="flex items-start gap-1.5"><span>•</span><span>Walk-in orders at the counter during busy class breaks.</span></li>
+              <li class="flex items-start gap-1.5"><span>•</span><span>Files shared haphazardly via WhatsApp, USB drives, or email.</span></li>
+              <li class="flex items-start gap-1.5"><span>•</span><span>Manual page counting and mental arithmetic pricing calculation.</span></li>
+              <li class="flex items-start gap-1.5"><span>•</span><span>Cash or ad-hoc personal UPI collection with verbal completion updates.</span></li>
+            </ul>
+          </div>
+
+          <!-- Existing Digital Methods & Limitations -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <h4 class="text-xs font-bold text-slate-900 flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px]">2</span>
+              <span>Existing Digital Tools & Limitations</span>
+            </h4>
+            <ul class="text-xs text-slate-600 space-y-1.5 pl-2">
+              <li class="flex items-start gap-1.5"><span>•</span><span>Generic Google forms, cloud drives, and commercial payment gateways exist separately.</span></li>
+              <li class="flex items-start gap-1.5"><span>•</span><span class="text-rose-600 font-medium">Limitation: Orders and files are scattered across disconnected channels.</span></li>
+              <li class="flex items-start gap-1.5"><span>•</span><span class="text-rose-600 font-medium">Limitation: No single queue visibility; students must crowd the counter to ask for progress.</span></li>
+              <li class="flex items-start gap-1.5"><span>•</span><span class="text-rose-600 font-medium">Limitation: Manual pricing and status updates create frequent discrepancies and order mix-ups.</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- SmartPrint Approach -->
+        <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 flex flex-col md:flex-row items-center justify-between gap-3">
+          <div class="space-y-1">
+            <span class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+              <i class="fa-solid fa-check-circle text-blue-600"></i> SmartPrint Unified Approach
+            </span>
+            <p class="text-xs text-slate-700">
+              Integrate order intake, file upload, duplex paper-saving calculation, queue token generation, and collection status into <strong>one unified student portal and one shop-owner dashboard</strong>.
+            </p>
+          </div>
+          <button onclick="switchView('student')" class="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold transition-colors whitespace-nowrap shadow-sm">
+            Try Student Portal ➔
+          </button>
+        </div>
+      </div>
+
+      <!-- SLIDE 9: PROPOSED WORK / METHODOLOGY -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-gears text-indigo-600"></i>
+              <span>Proposed Work / Methodology (Slide 9)</span>
+            </h3>
+            <p class="text-xs text-slate-500">System architecture, end-to-end workflows, feasibility, and technology tools</p>
+          </div>
+          <span class="text-xs bg-indigo-50 text-indigo-800 font-mono px-2 py-0.5 rounded border border-indigo-200">Slide 9</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+          <!-- Student Workflow -->
+          <div class="border border-blue-100 bg-blue-50/40 rounded-xl p-4 space-y-2">
+            <h4 class="text-xs font-bold text-blue-950 flex items-center gap-1.5">
+              <i class="fa-solid fa-user-graduate text-blue-600"></i> Student Workflow
+            </h4>
+            <div class="text-xs text-slate-700 space-y-1 font-mono text-[11px]">
+              <div>1. Sign in / Select Profile</div>
+              <div>2. Upload Document (PDF/DOCX)</div>
+              <div>3. Configure Pages, Color, Duplex</div>
+              <div>4. Dynamic Price Calculation</div>
+              <div>5. Simulated UPI / Cash Checkout</div>
+              <div>6. Instant Token Pass Generation</div>
+              <div>7. Real-Time Status Tracking</div>
+              <div>8. Ready Alert & Collection</div>
+            </div>
+          </div>
+
+          <!-- Shop Workflow -->
+          <div class="border border-emerald-100 bg-emerald-50/40 rounded-xl p-4 space-y-2">
+            <h4 class="text-xs font-bold text-emerald-950 flex items-center gap-1.5">
+              <i class="fa-solid fa-store text-emerald-600"></i> Shop Workflow
+            </h4>
+            <div class="text-xs text-slate-700 space-y-1 font-mono text-[11px]">
+              <div>1. Live Incoming Orders Feed</div>
+              <div>2. View Document & Print Specs</div>
+              <div>3. Accept & Queue Print Job</div>
+              <div>4. Update Status to "Processing"</div>
+              <div>5. Send Instant "Ready" Sound Alert</div>
+              <div>6. Counter Token Verification Scanner</div>
+              <div>7. Handover & Mark "Collected"</div>
+              <div>8. Daily Reconciled Revenue Analytics</div>
+            </div>
+          </div>
+
+          <!-- Tools & Feasibility -->
+          <div class="border border-purple-100 bg-purple-50/40 rounded-xl p-4 space-y-2">
+            <h4 class="text-xs font-bold text-purple-950 flex items-center gap-1.5">
+              <i class="fa-solid fa-screwdriver-wrench text-purple-600"></i> Tools & Feasibility
+            </h4>
+            <ul class="text-xs text-slate-700 space-y-1.5">
+              <li><strong>Frontend:</strong> HTML5, CSS3, Tailwind CSS, JavaScript ES6</li>
+              <li><strong>Backend:</strong> Python Flask REST API</li>
+              <li><strong>Database:</strong> SQLite 3 / MySQL</li>
+              <li><strong>Feasibility:</strong> Zero-install web app running on existing shop PC & printers. No student app downloads needed.</li>
+              <li><strong>Testing:</strong> Simulated UPI QR & offline-ready fallback.</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 8-Stage Implementation Pipeline -->
+        <div class="mt-4 pt-3 border-t border-slate-100">
+          <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">Implementation Pipeline:</p>
+          <div class="flex flex-wrap items-center gap-1.5 text-[11px] font-medium text-slate-700">
+            <span class="bg-slate-100 px-2 py-1 rounded border border-slate-200">Requirements</span>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-[9px]"></i>
+            <span class="bg-slate-100 px-2 py-1 rounded border border-slate-200">UI & DB Design</span>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-[9px]"></i>
+            <span class="bg-slate-100 px-2 py-1 rounded border border-slate-200">Frontend</span>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-[9px]"></i>
+            <span class="bg-slate-100 px-2 py-1 rounded border border-slate-200">Backend & File Handling</span>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-[9px]"></i>
+            <span class="bg-slate-100 px-2 py-1 rounded border border-slate-200">Queue / Status Logic</span>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-[9px]"></i>
+            <span class="bg-slate-100 px-2 py-1 rounded border border-slate-200">Integration</span>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-[9px]"></i>
+            <span class="bg-slate-100 px-2 py-1 rounded border border-slate-200">Testing</span>
+            <i class="fa-solid fa-chevron-right text-slate-400 text-[9px]"></i>
+            <span class="bg-emerald-100 text-emerald-800 px-2 py-1 rounded border border-emerald-200 font-bold">Pilot Deployment</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 10: INTERACTIVE SYSTEM ARCHITECTURE BLOCK DIAGRAM -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-sitemap text-blue-600"></i>
+              <span>Block Diagram / System Representation (Slide 10)</span>
+            </h3>
+            <p class="text-xs text-slate-500">Interactive architectural schematic of SmartPrint</p>
+          </div>
+          <span class="text-xs bg-blue-100 text-blue-800 font-mono px-2 py-0.5 rounded">Fig 1. System Block</span>
+        </div>
+
+        <div class="mt-6 p-6 rounded-2xl bg-slate-50 border border-slate-200">
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+            
+            <!-- Left: Users -->
+            <div class="space-y-4">
+              <div class="diag-node bg-white border-2 border-blue-400 p-4 rounded-xl shadow-sm text-center">
+                <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mx-auto mb-1 text-sm font-bold">
+                  <i class="fa-solid fa-user-graduate"></i>
+                </span>
+                <h5 class="text-xs font-black text-blue-900 uppercase">STUDENT</h5>
+                <p class="text-[10px] text-slate-500 mt-1">Login • Upload • Print Options • Live Token</p>
+              </div>
+
+              <div class="diag-node bg-white border-2 border-emerald-500 p-4 rounded-xl shadow-sm text-center">
+                <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-1 text-sm font-bold">
+                  <i class="fa-solid fa-user-tie"></i>
+                </span>
+                <h5 class="text-xs font-black text-emerald-900 uppercase">SHOP OWNER</h5>
+                <p class="text-[10px] text-slate-500 mt-1">Dashboard • Process • Update Status • Verify</p>
+              </div>
+            </div>
+
+            <!-- Middle Left: Web Application -->
+            <div>
+              <div class="diag-node bg-white border-2 border-indigo-600 p-5 rounded-xl shadow-md text-center">
+                <span class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center mx-auto mb-2 text-base">
+                  <i class="fa-solid fa-laptop-code"></i>
+                </span>
+                <h5 class="text-sm font-black text-indigo-950 uppercase">WEB APPLICATION</h5>
+                <p class="text-[11px] text-indigo-700 font-semibold mt-1">Student Portal + Admin Dashboard</p>
+                <div class="mt-2 text-[10px] bg-indigo-50 text-indigo-900 p-1 rounded font-mono">HTML, CSS, JS, Tailwind</div>
+              </div>
+            </div>
+
+            <!-- Middle Right: Backend Service & Printing -->
+            <div class="space-y-4">
+              <div class="diag-node bg-white border-2 border-slate-700 p-5 rounded-xl shadow-md text-center">
+                <span class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center mx-auto mb-2 text-base">
+                  <i class="fa-solid fa-server"></i>
+                </span>
+                <h5 class="text-sm font-black text-slate-900 uppercase">BACKEND SERVICE</h5>
+                <p class="text-[11px] text-slate-600 font-medium mt-1">Order, pricing, queue & status logic</p>
+                <div class="mt-2 text-[10px] bg-slate-100 text-slate-800 p-1 rounded font-mono">Python Flask REST API</div>
+              </div>
+
+              <div class="diag-node bg-white border-2 border-cyan-600 p-3.5 rounded-xl shadow-sm text-center">
+                <span class="w-7 h-7 rounded-lg bg-cyan-100 text-cyan-800 flex items-center justify-center mx-auto mb-1 text-xs">
+                  <i class="fa-solid fa-print"></i>
+                </span>
+                <h5 class="text-xs font-bold text-cyan-950 uppercase">PRINTING DEVICE</h5>
+                <p class="text-[10px] text-slate-500">Existing printer / Xerox machine</p>
+              </div>
+            </div>
+
+            <!-- Right: Storage & External Services -->
+            <div class="space-y-3">
+              <div class="diag-node bg-white border-2 border-amber-400 p-3 rounded-xl shadow-sm text-center">
+                <span class="w-6 h-6 rounded bg-amber-100 text-amber-800 flex items-center justify-center mx-auto mb-1 text-xs">
+                  <i class="fa-solid fa-database"></i>
+                </span>
+                <h5 class="text-xs font-bold text-amber-950 uppercase">DATABASE</h5>
+                <p class="text-[10px] text-slate-500">Users • Orders • Tokens • Payments</p>
+              </div>
+
+              <div class="diag-node bg-white border-2 border-orange-400 p-3 rounded-xl shadow-sm text-center">
+                <span class="w-6 h-6 rounded bg-orange-100 text-orange-800 flex items-center justify-center mx-auto mb-1 text-xs">
+                  <i class="fa-solid fa-folder-open"></i>
+                </span>
+                <h5 class="text-xs font-bold text-orange-950 uppercase">FILE STORAGE</h5>
+                <p class="text-[10px] text-slate-500">Uploaded print documents</p>
+              </div>
+
+              <div class="diag-node bg-white border-2 border-emerald-400 p-3 rounded-xl shadow-sm text-center">
+                <span class="w-6 h-6 rounded bg-emerald-100 text-emerald-800 flex items-center justify-center mx-auto mb-1 text-xs">
+                  <i class="fa-solid fa-bolt"></i>
+                </span>
+                <h5 class="text-xs font-bold text-emerald-950 uppercase">EXTERNAL SERVICES</h5>
+                <p class="text-[10px] text-slate-500">Payment Gateway • Email / SMS</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDE 11: FLOW DIAGRAM -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-diagram-project text-indigo-600"></i>
+              <span>Process Flow Diagram (Slide 11)</span>
+            </h3>
+            <p class="text-xs text-slate-500">Step-by-step transaction & queue progression</p>
+          </div>
+          <span class="text-xs bg-indigo-100 text-indigo-800 font-mono px-2 py-0.5 rounded">Fig 2. System Flow</span>
+        </div>
+
+        <div class="mt-6 flex flex-col md:flex-row items-center justify-between gap-3 p-4 bg-slate-50 rounded-xl border border-slate-200 overflow-x-auto">
+          
+          <div class="flex-1 min-w-[130px] p-3 bg-white border border-slate-200 rounded-xl text-center shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400">1</span>
+            <div class="font-bold text-xs text-slate-800">Student Sign In</div>
+            <div class="text-[10px] text-slate-500">Roll No. & Profile</div>
+          </div>
+
+          <i class="fa-solid fa-arrow-right text-slate-300 hidden md:block"></i>
+          <i class="fa-solid fa-arrow-down text-slate-300 md:hidden"></i>
+
+          <div class="flex-1 min-w-[130px] p-3 bg-white border border-slate-200 rounded-xl text-center shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400">2</span>
+            <div class="font-bold text-xs text-slate-800">Upload & Configure</div>
+            <div class="text-[10px] text-slate-500">Color, sides, copies</div>
+          </div>
+
+          <i class="fa-solid fa-arrow-right text-slate-300 hidden md:block"></i>
+          <i class="fa-solid fa-arrow-down text-slate-300 md:hidden"></i>
+
+          <div class="flex-1 min-w-[130px] p-3 bg-white border border-slate-200 rounded-xl text-center shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400">3</span>
+            <div class="font-bold text-xs text-slate-800">Calculate Price</div>
+            <div class="text-[10px] text-slate-500">Dynamic auto-sum</div>
+          </div>
+
+          <i class="fa-solid fa-arrow-right text-slate-300 hidden md:block"></i>
+          <i class="fa-solid fa-arrow-down text-slate-300 md:hidden"></i>
+
+          <div class="flex-1 min-w-[130px] p-3 bg-white border border-slate-200 rounded-xl text-center shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400">4</span>
+            <div class="font-bold text-xs text-slate-800">Confirm & Pay</div>
+            <div class="text-[10px] text-slate-500">UPI / Card / Cash</div>
+          </div>
+
+          <i class="fa-solid fa-arrow-right text-slate-300 hidden md:block"></i>
+          <i class="fa-solid fa-arrow-down text-slate-300 md:hidden"></i>
+
+          <div class="flex-1 min-w-[130px] p-3 bg-blue-50 border border-blue-200 rounded-xl text-center shadow-sm">
+            <span class="text-[10px] font-bold text-blue-600">5</span>
+            <div class="font-bold text-xs text-blue-900">Generate Token</div>
+            <div class="text-[10px] text-blue-700">Unique digital pass</div>
+          </div>
+
+          <i class="fa-solid fa-arrow-right text-slate-300 hidden md:block"></i>
+          <i class="fa-solid fa-arrow-down text-slate-300 md:hidden"></i>
+
+          <div class="flex-1 min-w-[130px] p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center shadow-sm">
+            <span class="text-[10px] font-bold text-emerald-600">6</span>
+            <div class="font-bold text-xs text-emerald-900">Print & Collect</div>
+            <div class="text-[10px] text-emerald-700">Ready Alert & Pickup</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SLIDES 5, 6, 7, 15, 16: LITERATURE REVIEW & RESEARCH GAP -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-book-bookmark text-indigo-600"></i>
+              <span>Literature Review & Research Gap Analysis</span>
+            </h3>
+            <p class="text-xs text-slate-500">10 Reviewed Scientific Papers on Virtual Queuing & Wait-Time Estimation</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-5">
+          
+          <div class="p-3.5 rounded-xl border border-blue-100 bg-blue-50/40 space-y-1">
+            <span class="text-[11px] font-bold text-blue-800">[1] Basgaran & Ibrahim (2023)</span>
+            <p class="text-xs text-slate-700"><em>Lasto Virtual Queue Management System</em> uses web-based virtual tokens and email alerts for computer service centres. Direct basis for token creation & alerts.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1">
+            <span class="text-[11px] font-bold text-slate-800">[2] Whitt (1999) - Management Science</span>
+            <p class="text-xs text-slate-700"><em>Predicting Queueing Delays</em> shows how queue length and service-state information support accurate real-time customer waiting-time estimates.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1">
+            <span class="text-[11px] font-bold text-slate-800">[4] Ibrahim & Whitt (2011) - Operations Research</span>
+            <p class="text-xs text-slate-700"><em>Wait-Time Predictors with Time-Varying Demand and Capacity</em>: Provides algorithms for estimating delays with changing arrival rates.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1">
+            <span class="text-[11px] font-bold text-slate-800">[7] Çil (2021) - Decision Sciences</span>
+            <p class="text-xs text-slate-700"><em>Managing Service Systems via Disguues</em>: Examines customer behavior and queue presentation to design transparent wait-time communication.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1">
+            <span class="text-[11px] font-bold text-slate-800">[8] Fauzi & Suhaimi (2025) - IJSECS</span>
+            <p class="text-xs text-slate-700"><em>QKlinik</em>: Web-based outpatient queue with QR reservation and real-time status as a modern adjacent service benchmark.</p>
+          </div>
+
+          <div class="p-3.5 rounded-xl border border-slate-200 bg-slate-50 space-y-1">
+            <span class="text-[11px] font-bold text-slate-800">[9] Thummar et al. (2025) - IRJASH</span>
+            <p class="text-xs text-slate-700"><em>DineWise RMS</em>: QR code table booking, virtual queues and order progression; demonstrates complete order-to-collection workflow.</p>
+          </div>
+
+        </div>
+
+        <!-- Research Gap Highlight Box -->
+        <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-blue-900 to-indigo-900 text-white space-y-1">
+          <div class="flex items-center gap-2 text-amber-300 font-bold text-xs uppercase tracking-wider">
+            <i class="fa-solid fa-lightbulb"></i> Research Gap & SmartPrint Contribution
+          </div>
+          <p class="text-xs text-slate-200 leading-relaxed">
+            Prior literature addresses queueing delay estimation, virtual tokens, or digital service ordering separately. 
+            <strong>SmartPrint is the first integrated platform</strong> that unites document upload, print configuration, automatic pricing, token tracking, Xerox shop operator queue management, and ready-for-collection alerts tailored for an Indian higher-education campus.
+          </p>
+        </div>
+      </div>
+
+      <!-- SLIDES 13 & 14: SCHEDULE & BUDGET -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- 4-Week Schedule & Gantt -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-calendar-days text-blue-600"></i>
+              <span>Time Frame / Schedule for Completion</span>
+            </h3>
+            <span class="text-xs text-slate-500">4-Week Plan</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex-1 pr-4">
+                <span class="font-bold text-slate-800">Week 1: Requirements & Design</span>
+                <p class="text-[11px] text-slate-500">Gather student & shop requirements; wireframes; database schema.</p>
+              </div>
+              <div class="w-24 bg-slate-100 rounded-full h-2 overflow-hidden flex">
+                <div class="bg-blue-600 w-full h-full"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex-1 pr-4">
+                <span class="font-bold text-slate-800">Week 2: Student Interface</span>
+                <p class="text-[11px] text-slate-500">Build student portal, file upload, print configuration, pricing calculator.</p>
+              </div>
+              <div class="w-24 bg-slate-100 rounded-full h-2 overflow-hidden flex">
+                <div class="bg-blue-600 w-full h-full"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex-1 pr-4">
+                <span class="font-bold text-slate-800">Week 3: Backend & Queue</span>
+                <p class="text-[11px] text-slate-500">Build shop dashboard, token generator, status logic, and notifications.</p>
+              </div>
+              <div class="w-24 bg-slate-100 rounded-full h-2 overflow-hidden flex">
+                <div class="bg-blue-600 w-full h-full"></div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex-1 pr-4">
+                <span class="font-bold text-slate-800">Week 4: Testing & Campus Pilot</span>
+                <p class="text-[11px] text-slate-500">Integrate modules; test upload & retrieval; pilot deployment in SKCET Xerox shop.</p>
+              </div>
+              <div class="w-24 bg-slate-100 rounded-full h-2 overflow-hidden flex">
+                <div class="bg-emerald-500 w-3/4 h-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Budget & Resources -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card space-y-4">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-coins text-amber-500"></i>
+              <span>Budget & Resource Utilization</span>
+            </h3>
+            <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">Total: ₹700</span>
+          </div>
+
+          <div class="space-y-3 text-xs">
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+              <div>
+                <h5 class="font-bold text-slate-800">Domain Registration</h5>
+                <p class="text-[11px] text-slate-500">1st Year campus domain (.ac.in / .in)</p>
+              </div>
+              <span class="font-mono font-bold text-sm text-slate-900">₹700.00</span>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+              <div>
+                <h5 class="font-bold text-slate-800">Hardware & Equipment</h5>
+                <p class="text-[11px] text-slate-500">Existing shop PC, Xerox machine, and student smartphones</p>
+              </div>
+              <span class="font-mono font-bold text-sm text-emerald-600">₹0 (Zero Cost)</span>
+            </div>
+
+            <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between">
+              <div>
+                <h5 class="font-bold text-slate-800">Software & Cloud Tier</h5>
+                <p class="text-[11px] text-slate-500">Open-source Python Flask + SQLite / campus local network</p>
+              </div>
+              <span class="font-mono font-bold text-sm text-emerald-600">₹0 (Open Source)</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- SLIDE 12: PRELIMINARY RESULTS / OUTPUTS -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-square-poll-vertical text-emerald-600"></i>
+              <span>Preliminary Results & Outputs (Slide 12)</span>
+            </h3>
+            <p class="text-xs text-slate-500">Planned student and shop outputs, system outputs, and pilot evaluation performance targets</p>
+          </div>
+          <span class="text-xs bg-emerald-50 text-emerald-800 font-mono px-2 py-0.5 rounded border border-emerald-200">Slide 12</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-5">
+          <!-- Student Outputs -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <h4 class="text-xs font-bold text-blue-900 flex items-center gap-1.5">
+              <i class="fa-solid fa-user-check text-blue-600"></i> Planned Student Outputs
+            </h4>
+            <ul class="text-xs text-slate-600 space-y-1.5">
+              <li>✓ Sign in / Profile registration interface</li>
+              <li>✓ Document drag-and-drop file upload form</li>
+              <li>✓ Print configuration & finishing selector</li>
+              <li>✓ Real-time itemized price summary</li>
+              <li>✓ Digital token generation & order pass</li>
+            </ul>
+          </div>
+
+          <!-- Shop Outputs -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <h4 class="text-xs font-bold text-emerald-900 flex items-center gap-1.5">
+              <i class="fa-solid fa-desktop text-emerald-600"></i> Planned Shop Outputs
+            </h4>
+            <ul class="text-xs text-slate-600 space-y-1.5">
+              <li>✓ Incoming-order live queue board</li>
+              <li>✓ Document download & print-instruction view</li>
+              <li>✓ Real-time status progression controls (Received, Processing, Ready, Collected)</li>
+              <li>✓ Express counter token verification</li>
+              <li>✓ Daily financial & sustainability metrics</li>
+            </ul>
+          </div>
+
+          <!-- System Outputs -->
+          <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+            <h4 class="text-xs font-bold text-indigo-900 flex items-center gap-1.5">
+              <i class="fa-solid fa-network-wired text-indigo-600"></i> System Outputs & Targets
+            </h4>
+            <ul class="text-xs text-slate-600 space-y-1.5">
+              <li>✓ 100% Unique token IDs for every order</li>
+              <li>✓ Saved transaction order records</li>
+              <li>✓ Timestamped order status audit logs</li>
+              <li>✓ Ready-for-collection alert notifications</li>
+              <li>✓ Whitt delay wait-time estimates</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Pilot Performance Targets -->
+        <div class="mt-4 p-4 rounded-xl bg-emerald-50/70 border border-emerald-200">
+          <h4 class="text-xs font-bold text-emerald-950 mb-2 flex items-center gap-1.5">
+            <i class="fa-solid fa-bullseye text-emerald-600"></i> Performance Targets for Pilot Evaluation
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div class="bg-white p-3 rounded-lg border border-emerald-200 text-center">
+              <div class="text-xl font-black text-emerald-600">100%</div>
+              <p class="text-[11px] text-slate-600 mt-0.5">Unique tokens for accepted orders</p>
+            </div>
+            <div class="bg-white p-3 rounded-lg border border-emerald-200 text-center">
+              <div class="text-xl font-black text-blue-600">&ge; 95%</div>
+              <p class="text-[11px] text-slate-600 mt-0.5">Successful test document uploads & retrieval</p>
+            </div>
+            <div class="bg-white p-3 rounded-lg border border-emerald-200 text-center">
+              <div class="text-xl font-black text-indigo-600">&minus; 60%</div>
+              <p class="text-[11px] text-slate-600 mt-0.5">Observed waiting time reduction during peak breaks</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SLIDES 15 & 16: FULL ACADEMIC REFERENCES -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 slide-card space-y-4">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-book text-indigo-600"></i>
+              <span>Academic References & Literature Sources (Slides 15 & 16)</span>
+            </h3>
+            <p class="text-xs text-slate-500">10 peer-reviewed research papers cited in literature review & system design</p>
+          </div>
+          <span class="text-xs bg-indigo-50 text-indigo-800 font-mono px-2 py-0.5 rounded border border-indigo-200">Slides 15 & 16</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs text-slate-700">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[1] P. S. Basgaran and N. Ibrahim (2023)</span>
+            <p class="text-[11px] text-slate-600">“Design and Development of Lasto Virtual Queue Management System,” <em>Applied Information Technology and Computer Science</em>, vol. 4, no. 1, pp. 916–934.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[2] W. Whitt (1999)</span>
+            <p class="text-[11px] text-slate-600">“Predicting Queueing Delays,” <em>Management Science</em>, vol. 45, no. 6, pp. 870–888.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[3] W. Whitt (1992)</span>
+            <p class="text-[11px] text-slate-600">“Understanding the Efficiency of Multi-Server Service Systems,” <em>Management Science</em>, vol. 38, no. 5, pp. 708–723.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[4] R. Ibrahim and W. Whitt (2011)</span>
+            <p class="text-[11px] text-slate-600">“Wait-Time Predictors for Customer Service Systems with Time-Varying Demand and Capacity,” <em>Operations Research</em>, vol. 59, no. 5, pp. 1106–1118.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[5] R. Ibrahim and W. Whitt (2011)</span>
+            <p class="text-[11px] text-slate-600">“Real-Time Delay Estimation Based on Delay History in Many-Server Service Systems with Time-Varying Arrivals,” <em>Manufacturing & Service Operations Management</em>, vol. 13, no. 3.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[6] R. Ibrahim (2018)</span>
+            <p class="text-[11px] text-slate-600">“Sharing Delay Information in Service Systems: A Literature Survey,” <em>Queueing Systems</em>.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[7] E. B. Çil (2021)</span>
+            <p class="text-[11px] text-slate-600">“Managing Service Systems via Disguised Queues: The Role of Retaliating Customers,” <em>Decision Sciences</em>, vol. 52, pp. 427–454.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[8] N. A. b. M. Fauzi and N. H. S. Suhaimi (2025)</span>
+            <p class="text-[11px] text-slate-600">“Design and Evaluation of QKlinik: A Web-Based Queue Management System for Outpatient Clinics,” <em>IJSECS</em>, vol. 11, no. 2, pp. 147–159.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[9] D. P. Thummar, J. B. Upadhyay, and B. R. Satote (2025)</span>
+            <p class="text-[11px] text-slate-600">“DineWise RMS: A QR Code-Based Restaurant Management System for Table Booking and Queue Management,” <em>IRJASH</em>, vol. 7, no. 10.</p>
+          </div>
+
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+            <span class="font-bold text-blue-800">[10] W. Whitt (1985)</span>
+            <p class="text-[11px] text-slate-600">“The Best Order for Queues in Series,” <em>Management Science</em>, vol. 31, no. 4, pp. 475–487.</p>
+          </div>
+        </div>
+
+        <div class="p-3 bg-blue-50/50 rounded-xl border border-blue-200 text-xs text-blue-900">
+          <strong>Supplementary Conference Paper:</strong> G. C. W. Kho and B. L. Wee, “A Conceptual Model for Virtual Queuing System to Support Social Distancing,” <em>2021 IEEE SCOReD</em>.
+        </div>
+      </div>
+      <!-- END: All-in-One Dashboard Hub -->
+      </div>
+
+      <!-- ========================================== -->
+      <!-- CONTAINER 2: 16-SLIDE PRESENTATION DECK -->
+      <!-- ========================================== -->
+      <div id="showcase-slides" class="hidden space-y-4">
+        
+        <!-- Presentation Navigation Bar -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 flex flex-col md:flex-row items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <button id="slide-btn-prev" onclick="changeSlide(-1)" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold rounded-xl text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-xs">
+              <i class="fa-solid fa-chevron-left"></i>
+              <span>Previous</span>
+            </button>
+            <div class="flex items-center gap-2">
+              <select id="slide-picker-select" onchange="goToSlide(this.value)" class="text-xs font-bold text-slate-800 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 max-w-[280px] sm:max-w-xs truncate">
+                <option value="1">Slide 1: SmartPrint Title & Team (Review 1)</option>
+                <option value="2">Slide 2: Problem Statement(s)</option>
+                <option value="3">Slide 3: Objective(s) & Success Criteria</option>
+                <option value="4">Slide 4: Sustainable Development Goals (SDGs)</option>
+                <option value="5">Slide 5: Literature Review – Scope & Research Gap</option>
+                <option value="6">Slide 6: Literature Review – Related Studies (1/2)</option>
+                <option value="7">Slide 7: Literature Review – Related Studies (2/2)</option>
+                <option value="8">Slide 8: Existing Technology & Limitations</option>
+                <option value="9">Slide 9: Proposed Work & Methodology</option>
+                <option value="10">Slide 10: Block Diagram / System Architecture</option>
+                <option value="11">Slide 11: Process Flow Diagram</option>
+                <option value="12">Slide 12: Preliminary Results & Targets</option>
+                <option value="13">Slide 13: Time Frame & 4-Week Schedule</option>
+                <option value="14">Slide 14: Budget & Resource Utilization</option>
+                <option value="15">Slide 15: Reference(s) (1 to 5)</option>
+                <option value="16">Slide 16: Reference(s) – Additional Sources</option>
+              </select>
+              <span id="slide-number-indicator" class="text-xs font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200 px-2.5 py-1.5 rounded-xl whitespace-nowrap">
+                Slide 1 / 16
+              </span>
+            </div>
+            <button id="slide-btn-next" onclick="changeSlide(1)" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl text-xs transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5 shadow-xs">
+              <span>Next</span>
+              <i class="fa-solid fa-chevron-right"></i>
+            </button>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="text-[11px] text-slate-400 hidden lg:inline">
+              <i class="fa-solid fa-keyboard mr-1"></i> Keys: <strong>←</strong> / <strong>→</strong> or <strong>Space</strong>
+            </span>
+            <button onclick="toggleSlideFullscreen()" class="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition-colors flex items-center gap-1.5 shadow-xs" title="Toggle Fullscreen">
+              <i class="fa-solid fa-expand"></i>
+              <span class="hidden sm:inline">Fullscreen</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Slide Presentation Stage Viewport -->
+        <div id="slide-presentation-viewport" class="bg-white rounded-3xl border border-slate-200 shadow-xl p-6 sm:p-10 min-h-[620px] flex flex-col justify-between relative overflow-hidden transition-all">
+          
+          <!-- ============================================== -->
+          <!-- SLIDE 1: TITLE & TEAM -->
+          <!-- ============================================== -->
+          <div id="slide-frame-1" class="slide-frame flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-4 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-blue-900 to-indigo-900 text-white flex items-center justify-center font-bold text-xl shadow-md">
+                  <i class="fa-solid fa-print"></i>
+                </div>
+                <div>
+                  <h4 class="text-xs font-black uppercase tracking-wider text-blue-900">Sri Krishna College of Engineering and Technology</h4>
+                  <p class="text-[10px] text-slate-500">An Autonomous Institution | Anna University Affiliated | NAAC A++ Accredited | Kuniamuthur, Coimbatore – 641008</p>
+                </div>
+              </div>
+              <span class="text-xs font-bold text-indigo-700 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-full">
+                Department of AI&DS
+              </span>
+            </div>
+
+            <div class="my-auto py-8 text-center space-y-4">
+              <div class="inline-block px-4 py-1 rounded-full bg-blue-100 text-blue-900 font-bold text-xs border border-blue-200 uppercase tracking-widest">
+                26ECC01 - Engineering Innovation and Design Thinking Lab • First Review
+              </div>
+              <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-slate-900 tracking-tight leading-tight max-w-4xl mx-auto">
+                SMARTPRINT: CAMPUS PRINTING AND QUEUE MANAGEMENT SYSTEM
+              </h1>
+              <p class="text-xs sm:text-sm text-slate-500 font-mono">Date: 03/11/2026 (FN) | Batch No.: 9</p>
+
+              <!-- Team Members Roster -->
+              <div class="pt-6 max-w-2xl mx-auto">
+                <p class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Batch Members</p>
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <p class="text-xs font-bold text-slate-800">YASVANTH V</p>
+                    <p class="text-[11px] font-mono text-blue-700 font-semibold">26AD470</p>
+                  </div>
+                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <p class="text-xs font-bold text-slate-800">MITHUN G</p>
+                    <p class="text-[11px] font-mono text-indigo-700 font-semibold">26AD480</p>
+                  </div>
+                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <p class="text-xs font-bold text-slate-800">YESHWANTH K</p>
+                    <p class="text-[11px] font-mono text-emerald-700 font-semibold">26AD471</p>
+                  </div>
+                  <div class="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <p class="text-xs font-bold text-slate-800">FATHRUL HAQ F</p>
+                    <p class="text-[11px] font-mono text-purple-700 font-semibold">26AD478</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 1 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 2: PROBLEM STATEMENT(S) -->
+          <!-- ============================================== -->
+          <div id="slide-frame-2" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Problem Statement(s)</h2>
+              <span class="text-xs font-mono text-slate-400">Review 1</span>
+            </div>
+
+            <div class="my-auto py-6 space-y-4 max-w-4xl">
+              <div class="p-4 rounded-xl bg-slate-50 border-l-4 border-rose-500">
+                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1">Problem</h4>
+                <p class="text-sm text-slate-700">Students face long physical queues at the campus printing and Xerox shop, especially during short breaks and near assignment deadlines.</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-slate-50 border-l-4 border-amber-500">
+                <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1">Background</h4>
+                <p class="text-sm text-slate-700">Printing requests are commonly received in person. Staff must collect files, confirm page and copy counts, calculate charges, receive payment and communicate collection status.</p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-xl bg-slate-50 border-l-4 border-blue-500">
+                  <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1">Impact on Students</h4>
+                  <p class="text-xs text-slate-700">Break time is lost while waiting; students may be late to class or unable to collect prints before the next academic session.</p>
+                </div>
+                <div class="p-4 rounded-xl bg-slate-50 border-l-4 border-purple-500">
+                  <h4 class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-1">Impact on Shop Staff</h4>
+                  <p class="text-xs text-slate-700">Multiple walk-in requests, file handling, pricing and payment checks create congestion and increase the chance of order mix-ups.</p>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-blue-50 border-l-4 border-blue-600 text-blue-950">
+                <h4 class="text-xs font-bold text-blue-900 uppercase tracking-wider mb-1">Core Need</h4>
+                <p class="text-sm font-semibold">A single campus platform to submit print jobs in advance, obtain a queue token and collect completed work without waiting beside the counter.</p>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 2 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 3: OBJECTIVE(S) -->
+          <!-- ============================================== -->
+          <div id="slide-frame-3" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Objective(s)</h2>
+              <span class="text-xs font-mono text-slate-400">Review 1</span>
+            </div>
+
+            <div class="my-auto py-6 space-y-4 max-w-4xl">
+              <div class="p-4 rounded-xl bg-blue-50/70 border border-blue-200">
+                <span class="text-xs font-black uppercase text-blue-800 tracking-wider">Primary Objective</span>
+                <p class="text-sm font-bold text-slate-900 mt-0.5">
+                  Develop a web-based campus printing and Xerox ordering system that digitizes order submission and queue handling.
+                </p>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <h4 class="font-bold text-slate-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-user-graduate text-blue-600"></i> Student Functions
+                  </h4>
+                  <ul class="text-slate-600 space-y-1.5 pl-2">
+                    <li>• Upload supported documents (PDF, DOCX, PPTX).</li>
+                    <li>• Select page range, copies, colour / black-and-white.</li>
+                    <li>• Choose single- / double-sided (duplex) options.</li>
+                    <li>• View calculated price in real time & submit order.</li>
+                  </ul>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <h4 class="font-bold text-slate-900 flex items-center gap-1.5">
+                    <i class="fa-solid fa-store text-emerald-600"></i> Shop Functions
+                  </h4>
+                  <ul class="text-slate-600 space-y-1.5 pl-2">
+                    <li>• View incoming orders in real-time feed.</li>
+                    <li>• Access submitted files and print specifications.</li>
+                    <li>• Update order status (Received, Processing, Ready, Collected).</li>
+                    <li>• Verify payment & manage the active print queue.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-xs space-y-1">
+                <h4 class="font-bold text-emerald-900">Queue, Communication & Success Measures</h4>
+                <p class="text-slate-700">
+                  Generate a unique token for each accepted order and notify students when the order is ready for collection.
+                  <strong>Success measures:</strong> Correct price calculation; unique token for every confirmed order; accurate order-status updates; successful file retrieval; reduction in observed physical waiting time during peak periods.
+                </p>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 3 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 4: SUSTAINABLE DEVELOPMENT GOALS -->
+          <!-- ============================================== -->
+          <div id="slide-frame-4" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Sustainable Development Goals – Mapping</h2>
+              <span class="text-xs font-mono text-emerald-700 font-bold">UN SDG Aligned</span>
+            </div>
+
+            <div class="my-auto py-6 grid grid-cols-1 md:grid-cols-3 gap-5 max-w-4xl mx-auto">
+              <div class="border-2 border-orange-200 bg-orange-50/50 rounded-2xl p-5 space-y-3">
+                <div class="flex items-center gap-3">
+                  <span class="w-12 h-12 rounded-xl bg-orange-600 text-white font-black flex items-center justify-center text-xl shadow">9</span>
+                  <div>
+                    <h4 class="text-xs font-black text-orange-950 uppercase">SDG 9</h4>
+                    <p class="text-[11px] font-bold text-orange-800">Industry, Innovation & Infrastructure</p>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-700 leading-relaxed">
+                  Digitalizes an existing campus service through a web-based ordering and queue platform, modernizing academic operations.
+                </p>
+              </div>
+
+              <div class="border-2 border-amber-200 bg-amber-50/50 rounded-2xl p-5 space-y-3">
+                <div class="flex items-center gap-3">
+                  <span class="w-12 h-12 rounded-xl bg-amber-600 text-white font-black flex items-center justify-center text-xl shadow">12</span>
+                  <div>
+                    <h4 class="text-xs font-black text-amber-950 uppercase">SDG 12</h4>
+                    <p class="text-[11px] font-bold text-amber-800">Responsible Consumption & Production</p>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-700 leading-relaxed">
+                  Page-range selection, duplex paper discounts, and print previews help students avoid unnecessary pages and waste from reprints.
+                </p>
+              </div>
+
+              <div class="border-2 border-red-200 bg-red-50/50 rounded-2xl p-5 space-y-3">
+                <div class="flex items-center gap-3">
+                  <span class="w-12 h-12 rounded-xl bg-red-700 text-white font-black flex items-center justify-center text-xl shadow">8</span>
+                  <div>
+                    <h4 class="text-xs font-black text-red-950 uppercase">SDG 8</h4>
+                    <p class="text-[11px] font-bold text-red-800">Decent Work & Economic Growth</p>
+                  </div>
+                </div>
+                <p class="text-xs text-slate-700 leading-relaxed">
+                  Organizes shop workflows, minimizes repetitive manual order-handling tasks, and ensures transparent financial ledger tracking.
+                </p>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 4 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 5: LITERATURE REVIEW (SCOPE & GAP) -->
+          <!-- ============================================== -->
+          <div id="slide-frame-5" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Literature Review</h2>
+              <span class="text-xs font-mono text-slate-400">Review 1</span>
+            </div>
+
+            <div class="my-auto py-6 space-y-3.5 max-w-4xl text-xs">
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Scope of Review</span>
+                <p class="text-slate-700 mt-1">Virtual queue systems, service-system waiting-time prediction, queue design and digital order workflows. Direct studies of campus Xerox shops are limited.</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Virtual Queue Implementation</span>
+                <p class="text-slate-700 mt-1">Basgaran & Ibrahim (2023) describe a web-based service-centre queue using QR/email token access and email alerts.</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Waiting-Time Research</span>
+                <p class="text-slate-700 mt-1">Whitt (1999), Ibrahim & Whitt (2011) and Ibrahim & Whitt (2018) show how queue state and recent service history can support delay estimates.</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                <span class="font-bold text-slate-900 uppercase tracking-wider text-[11px]">Service Workflow Research</span>
+                <p class="text-slate-700 mt-1">Çil (2021) studies customer behaviour and service operations in managed queues; QKlinik (2025) and DineWise (2025) demonstrate web / QR-based queue and order workflows in other service settings.</p>
+              </div>
+
+              <div class="p-4 rounded-xl bg-gradient-to-r from-blue-900 to-indigo-900 text-white">
+                <span class="font-bold text-amber-300 uppercase tracking-wider text-[11px]">Research Gap & SmartPrint Contribution</span>
+                <p class="text-slate-200 mt-1">These studies address queueing, service status or online ordering separately. SmartPrint combines document submission, print-option selection, price calculation, payment status, token tracking and collection notification for a campus print shop.</p>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 5 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 6: RELATED STUDIES (1/2) -->
+          <!-- ============================================== -->
+          <div id="slide-frame-6" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Literature Review – Related Studies (1/2)</h2>
+              <span class="text-xs font-mono text-slate-400">Slide 6</span>
+            </div>
+
+            <div class="my-auto py-4 grid grid-cols-1 md:grid-cols-2 gap-3.5 max-w-4xl mx-auto text-xs">
+              <div class="p-3.5 rounded-xl border-2 border-blue-200 bg-blue-50/50 space-y-1">
+                <h4 class="font-bold text-blue-900">[1] Basgaran & Ibrahim (2023)</h4>
+                <p class="text-slate-700">Lasto Virtual Queue Management System uses web-based virtual tokens and email alerts for a computer service centre. Relevant to token creation and queue notifications.</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl border-2 border-emerald-200 bg-emerald-50/50 space-y-1">
+                <h4 class="font-bold text-emerald-900">[2] Whitt (1999)</h4>
+                <p class="text-slate-700">Predicting Queueing Delays shows that queue length and service-state information can support customer waiting-time estimates.</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50/50 space-y-1">
+                <h4 class="font-bold text-amber-900">[3] Whitt (1992)</h4>
+                <p class="text-slate-700">Studies multi-server service efficiency and how arrival / service variability affects waiting time and service capacity.</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 space-y-1">
+                <h4 class="font-bold text-indigo-900">[4] Ibrahim & Whitt (2011)</h4>
+                <p class="text-slate-700">Develops delay predictors for changing arrival rates and service capacity; supports future waiting-time estimation features.</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl border-2 border-emerald-200 bg-emerald-50/50 space-y-1">
+                <h4 class="font-bold text-emerald-900">[5] Ibrahim & Whitt (2011)</h4>
+                <p class="text-slate-700">Uses recent delay history to estimate service delays and notes bias when demand changes over time.</p>
+              </div>
+
+              <div class="p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50/50 space-y-1">
+                <h4 class="font-bold text-amber-900">[6] Ibrahim (2018)</h4>
+                <p class="text-slate-700">Reviews methods for sharing delay information in service systems and discusses the limits of queue-based predictions.</p>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 6 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 7: RELATED STUDIES (2/2) -->
+          <!-- ============================================== -->
+          <div id="slide-frame-7" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Literature Review – Related Studies (2/2)</h2>
+              <span class="text-xs font-mono text-slate-400">Slide 7</span>
+            </div>
+
+            <div class="my-auto py-4 space-y-4 max-w-4xl mx-auto text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div class="p-3.5 rounded-xl border-2 border-blue-200 bg-blue-50/50 space-y-1">
+                  <h4 class="font-bold text-blue-900">[7] Çil (2021)</h4>
+                  <p class="text-slate-700">Examines how queue presentation and customer behaviour affect service-system management. Relevant to transparent queue communication.</p>
+                </div>
+
+                <div class="p-3.5 rounded-xl border-2 border-emerald-200 bg-emerald-50/50 space-y-1">
+                  <h4 class="font-bold text-emerald-900">[8] Fauzi & Suhaimi (2025)</h4>
+                  <p class="text-slate-700">QKlinik describes a web-based outpatient queue with QR reservation and real-time status. It is an adjacent example of digital queue workflow.</p>
+                </div>
+
+                <div class="p-3.5 rounded-xl border-2 border-amber-200 bg-amber-50/50 space-y-1">
+                  <h4 class="font-bold text-amber-900">[9] Thummar et al. (2025)</h4>
+                  <p class="text-slate-700">DineWise uses QR codes, booking, virtual queues and order progress in a restaurant setting; relevant to order-to-collection workflow.</p>
+                </div>
+
+                <div class="p-3.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/50 space-y-1">
+                  <h4 class="font-bold text-indigo-900">[10] Whitt (1985)</h4>
+                  <p class="text-slate-700">The Best Order for Queues in Series studies how the sequence of service stations affects expected customer time in a queueing network. Background for clear processing workflow.</p>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-slate-900 text-white">
+                <span class="font-bold text-amber-300 uppercase tracking-wider text-[11px]">Research gap and SmartPrint contribution</span>
+                <p class="text-slate-300 mt-1">Prior work covers virtual tokens, delay estimation and digital service ordering, but the reviewed examples do not focus on the complete campus Xerox workflow. SmartPrint combines file upload, print configuration, price calculation, order token, shop processing and collection status in one campus platform.</p>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 7 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 8: EXISTING TECHNOLOGY -->
+          <!-- ============================================== -->
+          <div id="slide-frame-8" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Existing Technology</h2>
+              <span class="text-xs font-mono text-slate-400">Slide 8</span>
+            </div>
+
+            <div class="my-auto py-4 space-y-3.5 max-w-4xl mx-auto text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Current Methods</h4>
+                  <ul class="text-slate-600 space-y-1.5 pl-2">
+                    <li>• Walk-in orders at the counter</li>
+                    <li>• Files shared through email or messaging apps</li>
+                    <li>• Manual page and copy counting</li>
+                    <li>• Cash / UPI collection</li>
+                    <li>• Verbal updates about completion</li>
+                  </ul>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2">
+                  <h4 class="font-bold text-slate-900 text-xs uppercase tracking-wider">Existing Digital Methods & Limitations</h4>
+                  <ul class="text-slate-600 space-y-1.5 pl-2">
+                    <li>• Web forms for order intake & cloud storage</li>
+                    <li>• QR token systems & payment APIs</li>
+                    <li><strong class="text-rose-600">Limitations:</strong> Orders and files scattered across channels</li>
+                    <li><strong class="text-rose-600">Limitations:</strong> No single queue view; students must ask staff for progress</li>
+                    <li><strong class="text-rose-600">Limitations:</strong> Manual pricing & status updates cause errors</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-blue-50 border border-blue-200 flex items-center justify-between gap-4">
+                <div>
+                  <h4 class="font-bold text-blue-900">SmartPrint Integrated Approach</h4>
+                  <p class="text-slate-700 mt-0.5">Integrate these functions into one student portal and one shop-owner dashboard. QR collection and estimated waiting time are built directly into the core workflow.</p>
+                </div>
+                <button onclick="switchView('student')" class="px-3.5 py-2 bg-blue-600 text-white rounded-lg font-bold text-xs shadow whitespace-nowrap">
+                  Open Student Portal
+                </button>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 8 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 9: PROPOSED WORK / METHODOLOGY -->
+          <!-- ============================================== -->
+          <div id="slide-frame-9" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Proposed Work/ Methodology</h2>
+              <span class="text-xs font-mono text-slate-400">Slide 9</span>
+            </div>
+
+            <div class="my-auto py-4 space-y-3.5 max-w-4xl mx-auto text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                  <h4 class="font-bold text-blue-800">Student Workflow</h4>
+                  <p class="text-slate-600 font-mono text-[11px]">Sign in → upload document → choose print settings → view price → confirm / pay → receive token → track status → collect when ready.</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                  <h4 class="font-bold text-emerald-800">Shop Workflow</h4>
+                  <p class="text-slate-600 font-mono text-[11px]">Review new order → open file and print instructions → accept / process → update status → mark ready → verify token at collection.</p>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                  <h4 class="font-bold text-slate-900">Tools & Technology Stack</h4>
+                  <p class="text-slate-600">HTML, CSS, JavaScript; Python Flask backend; SQLite/MySQL database; VS Code; existing computer, printer / Xerox machine, internet connection and student smartphones.</p>
+                </div>
+
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-1">
+                  <h4 class="font-bold text-slate-900">Feasibility & Innovation</h4>
+                  <p class="text-slate-600">Uses existing shop PC and printer; web app avoids app-store installs. Campus-specific integration of upload, pricing, tokens, and delay alerts.</p>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-950 font-mono text-[11px] text-center">
+                Requirements → UI and database design → frontend → backend & file handling → queue/status logic → integration → testing → pilot deployment.
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 9 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 10: BLOCK DIAGRAM / SYSTEM REPRESENTATION -->
+          <!-- ============================================== -->
+          <div id="slide-frame-10" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900">Block Diagram / System Representation</h2>
+                <p class="text-xs text-slate-500">Slide 10</p>
+              </div>
+              <button onclick="switchView('student')" class="px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-bold shadow">
+                Launch Live Architecture
+              </button>
+            </div>
+
+            <div class="my-auto py-6 max-w-4xl mx-auto w-full">
+              <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+                  
+                  <div class="space-y-4">
+                    <div class="bg-white border-2 border-blue-400 p-4 rounded-xl shadow-sm text-center">
+                      <span class="w-8 h-8 rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mx-auto mb-1 text-sm font-bold">
+                        <i class="fa-solid fa-user-graduate"></i>
+                      </span>
+                      <h5 class="text-xs font-black text-blue-900 uppercase">STUDENT</h5>
+                      <p class="text-[10px] text-slate-500 mt-1">Login • Upload • Print options</p>
+                    </div>
+
+                    <div class="bg-white border-2 border-emerald-500 p-4 rounded-xl shadow-sm text-center">
+                      <span class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center mx-auto mb-1 text-sm font-bold">
+                        <i class="fa-solid fa-user-tie"></i>
+                      </span>
+                      <h5 class="text-xs font-black text-emerald-900 uppercase">SHOP OWNER</h5>
+                      <p class="text-[10px] text-slate-500 mt-1">Dashboard • Process • Update</p>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="bg-white border-2 border-indigo-600 p-5 rounded-xl shadow-md text-center">
+                      <span class="w-10 h-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center mx-auto mb-2 text-base">
+                        <i class="fa-solid fa-laptop-code"></i>
+                      </span>
+                      <h5 class="text-xs font-black text-indigo-950 uppercase">WEB APPLICATION</h5>
+                      <p class="text-[11px] text-indigo-700 font-semibold mt-1">Student portal + admin dashboard</p>
+                    </div>
+                  </div>
+
+                  <div class="space-y-4">
+                    <div class="bg-white border-2 border-slate-700 p-5 rounded-xl shadow-md text-center">
+                      <span class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center mx-auto mb-2 text-base">
+                        <i class="fa-solid fa-server"></i>
+                      </span>
+                      <h5 class="text-xs font-black text-slate-900 uppercase">BACKEND SERVICE</h5>
+                      <p class="text-[11px] text-slate-600 font-medium mt-1">Order, pricing, queue and status logic</p>
+                    </div>
+
+                    <div class="bg-white border-2 border-cyan-600 p-3.5 rounded-xl shadow-sm text-center">
+                      <span class="w-7 h-7 rounded-lg bg-cyan-100 text-cyan-800 flex items-center justify-center mx-auto mb-1 text-xs">
+                        <i class="fa-solid fa-print"></i>
+                      </span>
+                      <h5 class="text-xs font-bold text-cyan-950 uppercase">PRINTING DEVICE</h5>
+                      <p class="text-[10px] text-slate-500">Existing printer / Xerox</p>
+                    </div>
+                  </div>
+
+                  <div class="space-y-3">
+                    <div class="bg-white border-2 border-amber-400 p-3 rounded-xl shadow-sm text-center">
+                      <h5 class="text-xs font-bold text-amber-950 uppercase">DATABASE</h5>
+                      <p class="text-[10px] text-slate-500">Users • Orders • Tokens • Payments</p>
+                    </div>
+
+                    <div class="bg-white border-2 border-orange-400 p-3 rounded-xl shadow-sm text-center">
+                      <h5 class="text-xs font-bold text-orange-950 uppercase">FILE STORAGE</h5>
+                      <p class="text-[10px] text-slate-500">Uploaded print documents</p>
+                    </div>
+
+                    <div class="bg-white border-2 border-emerald-400 p-3 rounded-xl shadow-sm text-center">
+                      <h5 class="text-xs font-bold text-emerald-950 uppercase">EXTERNAL SERVICES</h5>
+                      <p class="text-[10px] text-slate-500">Payment gateway • Email / SMS</p>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 10 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 11: FLOW DIAGRAM -->
+          <!-- ============================================== -->
+          <div id="slide-frame-11" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <div>
+                <h2 class="text-xl sm:text-2xl font-black text-slate-900">Flow Diagram</h2>
+                <p class="text-xs text-slate-500">Slide 11</p>
+              </div>
+              <button onclick="switchView('student')" class="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold shadow">
+                Try Interactive Flow
+              </button>
+            </div>
+
+            <div class="my-auto py-6 max-w-4xl mx-auto w-full space-y-4">
+              <div class="flex flex-col items-center space-y-3">
+                <span class="px-6 py-1.5 rounded-full bg-slate-800 text-white font-bold text-xs uppercase tracking-wider">START</span>
+                <i class="fa-solid fa-arrow-down text-slate-400 text-xs"></i>
+                <div class="w-80 p-3 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-xs text-slate-800">Student login / registration</div>
+                <i class="fa-solid fa-arrow-down text-slate-400 text-xs"></i>
+                <div class="w-80 p-3 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-xs text-slate-800">Upload document and select print settings</div>
+                <i class="fa-solid fa-arrow-down text-slate-400 text-xs"></i>
+                <div class="w-80 p-3 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-xs text-slate-800">System calculates total price</div>
+                <i class="fa-solid fa-arrow-down text-slate-400 text-xs"></i>
+                <div class="w-80 p-3 rounded-xl bg-slate-50 border border-slate-200 text-center font-bold text-xs text-slate-800">Confirm order and payment</div>
+                <i class="fa-solid fa-arrow-down text-slate-400 text-xs"></i>
+                
+                <!-- Decision Diamond -->
+                <div class="flex items-center gap-4">
+                  <span class="text-xs text-rose-600 font-bold bg-rose-50 px-3 py-1 rounded border border-rose-200">NO: Retry / cancel</span>
+                  <div class="px-6 py-2.5 rounded-lg bg-amber-100 border border-amber-300 font-bold text-xs text-amber-900 shadow-xs">Payment successful?</div>
+                  <span class="text-xs text-emerald-600 font-bold bg-emerald-50 px-3 py-1 rounded border border-emerald-200">YES: Generate token</span>
+                </div>
+
+                <i class="fa-solid fa-arrow-down text-slate-400 text-xs"></i>
+                <div class="w-96 p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-center font-bold text-xs text-emerald-950">Shop prints → Ready alert → Collection</div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 11 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 12: PRELIMINARY RESULTS / OUTPUTS -->
+          <!-- ============================================== -->
+          <div id="slide-frame-12" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Preliminary Results / Outputs</h2>
+              <span class="text-xs font-mono text-slate-400">Slide 12</span>
+            </div>
+
+            <div class="my-auto py-4 space-y-4 max-w-4xl mx-auto text-xs">
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                  <h4 class="font-bold text-blue-900 uppercase tracking-wider text-[11px]">Planned Student Outputs</h4>
+                  <p class="text-slate-600">Login / registration page; document upload form; print-option selector; price summary; order confirmation and token page.</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                  <h4 class="font-bold text-emerald-900 uppercase tracking-wider text-[11px]">Planned Shop Outputs</h4>
+                  <p class="text-slate-600">Incoming-order dashboard; document and print-instruction view; queue list; status controls (Received, Processing, Ready, Collected).</p>
+                </div>
+
+                <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-1.5">
+                  <h4 class="font-bold text-indigo-900 uppercase tracking-wider text-[11px]">System Outputs</h4>
+                  <p class="text-slate-600">Unique order ID / token; saved order record; payment status; timestamped status history; ready-for-collection notification.</p>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-emerald-50 border border-emerald-200 space-y-2">
+                <h4 class="font-bold text-emerald-950">Performance Targets for Pilot Evaluation (not yet measured):</h4>
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-center">
+                  <div class="bg-white p-3 rounded-lg border border-emerald-200">
+                    <span class="text-lg font-black text-emerald-600">100%</span>
+                    <p class="text-[11px] text-slate-600 mt-0.5">Unique tokens for accepted orders</p>
+                  </div>
+                  <div class="bg-white p-3 rounded-lg border border-emerald-200">
+                    <span class="text-lg font-black text-blue-600">&ge; 95%</span>
+                    <p class="text-[11px] text-slate-600 mt-0.5">Successful test uploads</p>
+                  </div>
+                  <div class="bg-white p-3 rounded-lg border border-emerald-200">
+                    <span class="text-lg font-black text-indigo-600">Measured</span>
+                    <p class="text-[11px] text-slate-600 mt-0.5">Compare avg student waiting time before & after</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 12 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 13: TIME FRAME / SCHEDULE -->
+          <!-- ============================================== -->
+          <div id="slide-frame-13" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Time frame/ Schedule for completion</h2>
+              <span class="text-xs font-mono text-slate-400">Slide 13</span>
+            </div>
+
+            <div class="my-auto py-6 space-y-4 max-w-4xl mx-auto w-full text-xs">
+              <p class="text-slate-600">Proposed four-week implementation plan (adjust to the final submission date):</p>
+              
+              <div class="space-y-3">
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div class="flex-1 pr-4">
+                    <span class="font-bold text-slate-900">Week 1 – Gather student / shop requirements</span>
+                    <p class="text-[11px] text-slate-500">Define scope; prepare wireframes and database schema.</p>
+                  </div>
+                  <div class="w-32 bg-slate-200 rounded-full h-3 overflow-hidden flex">
+                    <div class="bg-blue-600 w-1/4 h-full"></div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div class="flex-1 pr-4">
+                    <span class="font-bold text-slate-900">Week 2 – Build student interface</span>
+                    <p class="text-[11px] text-slate-500">File upload and print-option selection; implement price calculation.</p>
+                  </div>
+                  <div class="w-32 bg-slate-200 rounded-full h-3 overflow-hidden flex">
+                    <div class="bg-blue-600 w-2/4 h-full"></div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div class="flex-1 pr-4">
+                    <span class="font-bold text-slate-900">Week 3 – Build shop dashboard</span>
+                    <p class="text-[11px] text-slate-500">Order database, token generation, queue status and notification workflow.</p>
+                  </div>
+                  <div class="w-32 bg-slate-200 rounded-full h-3 overflow-hidden flex">
+                    <div class="bg-blue-600 w-3/4 h-full"></div>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <div class="flex-1 pr-4">
+                    <span class="font-bold text-slate-900">Week 4 – Integrate modules & Campus pilot</span>
+                    <p class="text-[11px] text-slate-500">Test uploads, pricing, tokens and status updates; fix defects; conduct small campus pilot and prepare documentation.</p>
+                  </div>
+                  <div class="w-32 bg-slate-200 rounded-full h-3 overflow-hidden flex">
+                    <div class="bg-emerald-500 w-full h-full"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 13 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 14: BUDGET -->
+          <!-- ============================================== -->
+          <div id="slide-frame-14" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Budget</h2>
+              <span class="text-xs font-mono text-slate-400">Slide 14</span>
+            </div>
+
+            <div class="my-auto py-6 space-y-4 max-w-4xl mx-auto w-full text-xs">
+              <p class="text-slate-600">Estimated first-year real-world deployment for one campus Xerox shop (assuming existing computer and printer are available):</p>
+              
+              <div class="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
+                <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                  <div>
+                    <h4 class="font-bold text-slate-800 text-sm">Domain registration</h4>
+                    <p class="text-[11px] text-slate-500">Campus .ac.in / commercial domain name for web portal</p>
+                  </div>
+                  <span class="text-lg font-black font-mono text-slate-900">₹700</span>
+                </div>
+
+                <div class="flex items-center justify-between pt-1">
+                  <div>
+                    <h4 class="font-bold text-blue-900 text-base">Estimated Total</h4>
+                    <p class="text-[11px] text-slate-500">First-year direct software cost</p>
+                  </div>
+                  <span class="text-2xl font-black font-mono text-blue-700 bg-blue-50 border border-blue-200 px-4 py-1.5 rounded-xl">₹700</span>
+                </div>
+              </div>
+
+              <div class="p-4 rounded-xl bg-blue-50/60 border border-blue-200 text-slate-700">
+                <strong class="text-blue-900">Resources:</strong> Existing shop PC and printer, internet, student smartphones, cloud server, database, QR code capability.<br>
+                <strong class="text-blue-900">Funding:</strong> College support, shop contribution or team funding.
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 14 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 15: REFERENCE(S) -->
+          <!-- ============================================== -->
+          <div id="slide-frame-15" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Reference(s)</h2>
+              <span class="text-xs font-mono text-slate-400">Slide 15</span>
+            </div>
+
+            <div class="my-auto py-4 space-y-3 max-w-4xl mx-auto text-xs text-slate-700">
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [1] P. S. Basgaran and N. Ibrahim, “Design and Development of Lasto Virtual Queue Management System,” <em>Applied Information Technology and Computer Science</em>, vol. 4, no. 1, pp. 916–934, 2023.
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [2] W. Whitt, “Predicting Queueing Delays,” <em>Management Science</em>, vol. 45, no. 6, pp. 870–888, 1999.
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [3] W. Whitt, “Understanding the Efficiency of Multi-Server Service Systems,” <em>Management Science</em>, vol. 38, no. 5, pp. 708–723, 1992.
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [4] R. Ibrahim and W. Whitt, “Wait-Time Predictors for Customer Service Systems with Time-Varying Demand and Capacity,” <em>Operations Research</em>, vol. 59, no. 5, pp. 1106–1118, 2011.
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [5] R. Ibrahim and W. Whitt, “Real-Time Delay Estimation Based on Delay History in Many-Server Service Systems with Time-Varying Arrivals,” <em>Manufacturing & Service Operations Management</em>, vol. 13, no. 3, 2011.
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 15 of 16</span>
+            </div>
+          </div>
+
+          <!-- ============================================== -->
+          <!-- SLIDE 16: REFERENCE(S) – ADDITIONAL SOURCES -->
+          <!-- ============================================== -->
+          <div id="slide-frame-16" class="slide-frame hidden flex-1 flex flex-col justify-between">
+            <div class="border-b border-slate-100 pb-3 flex items-center justify-between">
+              <h2 class="text-xl sm:text-2xl font-black text-slate-900">Reference(s) – Additional Sources</h2>
+              <span class="text-xs font-mono text-slate-400">Slide 16</span>
+            </div>
+
+            <div class="my-auto py-4 space-y-2.5 max-w-4xl mx-auto text-xs text-slate-700">
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [6] R. Ibrahim, “Sharing Delay Information in Service Systems: A Literature Survey,” <em>Queueing Systems</em>, 2018.
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [7] E. B. Çil, “Managing Service Systems via Disguised Queues: The Role of Retaliating Customers,” <em>Decision Sciences</em>, vol. 52, pp. 427–454, 2021.
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [8] N. A. b. M. Fauzi and N. H. S. Suhaimi, “Design and Evaluation of QKlinik: A Web-Based Queue Management System for Outpatient Clinics,” <em>IJSECS</em>, vol. 11, no. 2, pp. 147–159, 2025.
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [9] D. P. Thummar, J. B. Upadhyay, and B. R. Satote, “DineWise RMS: A QR Code-Based Restaurant Management System for Table Booking and Queue Management,” <em>IRJASH</em>, vol. 7, no. 10, 2025.
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                • [10] W. Whitt, “The Best Order for Queues in Series,” <em>Management Science</em>, vol. 31, no. 4, pp. 475–487, 1985.
+              </div>
+              <div class="p-2.5 rounded-lg bg-blue-50/70 border border-blue-200 text-blue-900 font-medium">
+                • Supplementary conference paper: G. C. W. Kho and B. L. Wee, “A Conceptual Model for Virtual Queuing System to Support Social Distancing,” <em>2021 IEEE SCOReD</em>.
+              </div>
+            </div>
+
+            <div class="border-t border-slate-100 pt-3 flex items-center justify-between text-[11px] text-slate-400 font-mono">
+              <span>03-11-2026 | Dept. of AI&DS | EI&DT Lab | Batch - 9 | First review</span>
+              <span class="font-bold text-slate-600">Slide 16 of 16</span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================== -->
+  <!-- MODAL: PAYMENT CHECKOUT SIMULATION -->
+  <!-- ========================================== -->
+  <div id="payment-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200 space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-100">
+        <div>
+          <h3 class="text-base font-bold text-slate-900">Checkout & Token Generation</h3>
+          <p class="text-xs text-slate-500">SKCET SmartPrint Gateway</p>
+        </div>
+        <button onclick="closePaymentModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Payment Amount Card -->
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-center">
+        <span class="text-xs text-blue-700 font-semibold uppercase">Total Amount Due</span>
+        <div class="text-3xl font-black text-blue-900 font-mono mt-0.5" id="checkout-amount-display">₹21.40</div>
+        <p class="text-[11px] text-blue-600 mt-1" id="checkout-doc-caption">EIDT_Review1.pdf • 16 pages</p>
+      </div>
+
+      <!-- Payment Method Switcher -->
+      <div class="space-y-2">
+        <label class="block text-xs font-bold text-slate-700">Select Payment Method</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="selectPaymentMethod('upi')" id="pay-method-upi" class="p-2.5 rounded-xl border-2 border-blue-600 bg-blue-50/50 text-center text-xs font-bold text-blue-900 transition-all">
+            <i class="fa-solid fa-qrcode text-base block mb-1 text-blue-600"></i>
+            <span>UPI QR</span>
+          </button>
+          <button type="button" onclick="selectPaymentMethod('card')" id="pay-method-card" class="p-2.5 rounded-xl border border-slate-200 text-center text-xs font-medium text-slate-700 hover:bg-slate-50 transition-all">
+            <i class="fa-solid fa-id-card text-base block mb-1 text-slate-500"></i>
+            <span>Student Card</span>
+          </button>
+          <button type="button" onclick="selectPaymentMethod('cash')" id="pay-method-cash" class="p-2.5 rounded-xl border border-slate-200 text-center text-xs font-medium text-slate-700 hover:bg-slate-50 transition-all">
+            <i class="fa-solid fa-money-bill-wave text-base block mb-1 text-slate-500"></i>
+            <span>Pay at Counter</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- UPI QR Code Section -->
+      <div id="upi-qr-section" class="border border-slate-200 rounded-xl p-4 text-center space-y-3 bg-slate-50">
+        <div class="inline-block p-2 bg-white rounded-xl shadow-sm border border-slate-200">
+          <canvas id="checkout-qr-canvas" width="130" height="130"></canvas>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-slate-800">Scan with GPay, PhonePe, Paytm, or BHIM</p>
+          <p class="text-[11px] font-mono text-slate-500">UPI ID: skcet.smartprint@okaxis</p>
+        </div>
+        <div class="flex items-center justify-center gap-3 text-slate-400 text-lg">
+          <i class="fa-brands fa-google-pay text-slate-700"></i>
+          <i class="fa-solid fa-wallet text-indigo-600"></i>
+          <i class="fa-solid fa-building-columns text-emerald-600"></i>
+        </div>
+      </div>
+
+      <!-- Action Button -->
+      <button type="button" onclick="confirmPaymentAndPlaceOrder()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-sm transition-colors shadow-md flex items-center justify-center gap-2">
+        <i class="fa-solid fa-circle-check"></i>
+        <span>Confirm Payment & Join Queue</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: SWITCH BATCH MEMBER PROFILE -->
+  <!-- ========================================== -->
+  <div id="user-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-slate-200 space-y-4">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <h3 class="text-sm font-bold text-slate-900">Switch Student Profile</h3>
+        <button onclick="toggleUserModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <p class="text-xs text-slate-500">Select any batch member to test student orders:</p>
+      <div class="space-y-2">
+        <button onclick="switchUser('Yasvanth V', '26AD470')" class="w-full text-left p-2.5 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center justify-between text-xs transition-colors">
+          <span class="font-bold text-slate-800">Yasvanth V</span>
+          <span class="font-mono text-blue-600 font-semibold">26AD470</span>
+        </button>
+        <button onclick="switchUser('Mithun G', '26AD480')" class="w-full text-left p-2.5 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center justify-between text-xs transition-colors">
+          <span class="font-bold text-slate-800">Mithun G</span>
+          <span class="font-mono text-blue-600 font-semibold">26AD480</span>
+        </button>
+        <button onclick="switchUser('Yeshwanth K', '26AD471')" class="w-full text-left p-2.5 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center justify-between text-xs transition-colors">
+          <span class="font-bold text-slate-800">Yeshwanth K</span>
+          <span class="font-mono text-blue-600 font-semibold">26AD471</span>
+        </button>
+        <button onclick="switchUser('Fathrul Haq F', '26AD478')" class="w-full text-left p-2.5 rounded-xl border border-slate-200 hover:border-blue-500 hover:bg-blue-50/50 flex items-center justify-between text-xs transition-colors">
+          <span class="font-bold text-slate-800">Fathrul Haq F</span>
+          <span class="font-mono text-blue-600 font-semibold">26AD478</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- FOOTER -->
+  <footer class="bg-white border-t border-slate-200 mt-12 py-6 text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-3">
+      <p>© 2026 SmartPrint • Sri Krishna College of Engineering and Technology (SKCET)</p>
+      <div class="flex items-center gap-4 text-[11px]">
+        <span>Dept of AI&DS</span>
+        <span>•</span>
+        <span>26ECC01 Lab - Batch 9</span>
+        <span>•</span>
+        <span class="text-emerald-600 font-semibold">SDG 8, 9, 12 Compliant</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Logic -->
+  <script src="app.js"></script>
+</body>
+</html>
